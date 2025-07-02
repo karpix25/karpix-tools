@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Stephen G. Pope
+boto3==1.24.28# Copyright (c) 2025 Stephen G. Pope
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ def process_transcription(media_url, output_type, max_chars=56, language=None,):
     logger.info(f"Downloaded media to local file: {input_filename}")
 
     try:
-        model = whisper.load_model("base")
+        model = whisper.load_model("small")
         logger.info("Loaded Whisper model")
 
         # result = model.transcribe(input_filename)
