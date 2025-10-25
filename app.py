@@ -23,8 +23,10 @@ import threading
 import uuid
 import os
 import time
+import json
 from version import BUILD_NUMBER  # Import the BUILD_NUMBER
 from app_utils import log_job_status, discover_and_register_blueprints  # Import the discover_and_register_blueprints function
+from services.gcp_toolkit import trigger_cloud_run_job
 
 MAX_QUEUE_LENGTH = int(os.environ.get('MAX_QUEUE_LENGTH', 0))
 
@@ -98,8 +100,135 @@ def create_app():
                 data = request.json if request.is_json else {}
                 pid = os.getpid()  # Get PID for non-queued tasks
                 start_time = time.time()
-                
-                if bypass_queue or 'webhook_url' not in data:
+
+                # If running inside a GCP Cloud Run Job instance, execute synchronously
+                if os.environ.get("CLOUD_RUN_JOB"):
+                    # Get execution name from Google's env var
+                    execution_name = os.environ.get("CLOUD_RUN_EXECUTION", "gcp_job")
+
+                    # Log job status as running
+                    log_job_status(job_id, {
+                        "job_status": "running",
+                        "job_id": job_id,
+                        "queue_id": execution_name,
+                        "process_id": pid,
+                        "response": None
+                    })
+
+                    # Execute the function directly (no queue)
+                    response = f(job_id=job_id, data=data, *args, **kwargs)
+                    run_time = time.time() - start_time
+
+                    # Build response object
+                    response_obj = {
+                        "endpoint": response[1],
+                        "code": response[2],
+                        "id": data.get("id"),
+                        "job_id": job_id,
+                        "response": response[0] if response[2] == 200 else None,
+                        "message": "success" if response[2] == 200 else response[0],
+                        "run_time": round(run_time, 3),
+                        "queue_time": 0,
+                        "total_time": round(run_time, 3),
+                        "pid": pid,
+                        "queue_id": execution_name,
+                        "queue_length": 0,
+                        "build_number": BUILD_NUMBER
+                    }
+
+                    # Log job status as done
+                    log_job_status(job_id, {
+                        "job_status": "done",
+                        "job_id": job_id,
+                        "queue_id": execution_name,
+                        "process_id": pid,
+                        "response": response_obj
+                    })
+
+                    # Send webhook if webhook_url is provided
+                    if data.get("webhook_url") and data.get("webhook_url") != "":
+                        send_webhook(data.get("webhook_url"), response_obj)
+
+                    return response_obj, response[2]
+
+                if os.environ.get("GCP_JOB_NAME") and data.get("webhook_url"):
+                    try:
+                        overrides = {
+                            'container_overrides': [
+                                {
+                                    'env': [
+                                        # Environment variables to pass to the GCP Cloud Run Job
+                                        {
+                                            'name': 'GCP_JOB_PATH',
+                                            'value': request.path  # Endpoint to call
+                                        },
+                                        {
+                                            'name': 'GCP_JOB_PAYLOAD',
+                                            'value': json.dumps(data)  # Payload as a string
+                                        },
+                                    ]
+                                }
+                            ],
+                            'task_count': 1
+                        }
+
+                        # Call trigger_cloud_run_job with the overrides dictionary
+                        response = trigger_cloud_run_job(
+                            job_name=os.environ.get("GCP_JOB_NAME"),
+                            location=os.environ.get("GCP_JOB_LOCATION", "us-central1"),
+                            overrides=overrides  # Pass overrides to the job
+                        )
+
+                        if not response.get("job_submitted"):
+                            raise Exception(f"GCP job trigger failed: {response}")
+
+                        # Extract execution name and short ID for tracking
+                        execution_name = response.get("execution_name", "")
+                        gcp_queue_id = execution_name.split('/')[-1] if execution_name else "gcp_job"
+
+                        # Prepare the response object
+                        response_obj = {
+                            "code": 200,
+                            "id": data.get("id"),
+                            "job_id": job_id,
+                            "message": response,
+                            "job_name": os.environ.get("GCP_JOB_NAME"),
+                            "location": os.environ.get("GCP_JOB_LOCATION", "us-central1"),
+                            "pid": pid,
+                            "queue_id": gcp_queue_id,
+                            "build_number": BUILD_NUMBER
+                        }
+                        log_job_status(job_id, {
+                            "job_status": "submitted",
+                            "job_id": job_id,
+                            "queue_id": gcp_queue_id,
+                            "process_id": pid,
+                            "response": response_obj
+                        })
+                        return response_obj, 200  # Return 200 since it's a submission success
+
+                    except Exception as e:
+                        error_response = {
+                            "code": 500,
+                            "id": data.get("id"),
+                            "job_id": job_id,
+                            "message": f"GCP Cloud Run Job trigger failed: {str(e)}",
+                            "job_name": os.environ.get("GCP_JOB_NAME"),
+                            "location": os.environ.get("GCP_JOB_LOCATION", "us-central1"),
+                            "pid": pid,
+                            "queue_id": "gcp_job",
+                            "build_number": BUILD_NUMBER
+                        }
+                        log_job_status(job_id, {
+                            "job_status": "failed",
+                            "job_id": job_id,
+                            "queue_id": "gcp_job",
+                            "process_id": pid,
+                            "response": error_response
+                        })
+                        return error_response, 500
+
+                elif bypass_queue or 'webhook_url' not in data:
                     
                     # Log job status as running immediately (bypassing queue)
                     log_job_status(job_id, {
@@ -112,8 +241,9 @@ def create_app():
                     
                     response = f(job_id=job_id, data=data, *args, **kwargs)
                     run_time = time.time() - start_time
-                    
+
                     response_obj = {
+                        "endpoint": response[1],
                         "code": response[2],
                         "id": data.get("id"),
                         "job_id": job_id,
