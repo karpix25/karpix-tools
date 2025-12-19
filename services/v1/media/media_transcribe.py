@@ -126,7 +126,7 @@ def process_transcribe_media(media_url, task, include_text, include_srt, include
         logger.info(f"{task.capitalize()} successful, output type: {response_type}")
 
         if response_type == "direct":
-            return text, srt_text, segments_json
+            return text, srt_text, segments_json, result.get('language')
         else:
             
             if include_text is True:
@@ -150,7 +150,7 @@ def process_transcribe_media(media_url, task, include_text, include_srt, include
             else:
                 segments_filename = None
 
-            return text_filename, srt_filename, segments_filename 
+            return text_filename, srt_filename, segments_filename, result.get('language')
 
     except Exception as e:
         logger.error(f"{task.capitalize()} failed: {str(e)}")

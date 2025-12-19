@@ -67,6 +67,9 @@ def transcribe(job_id, data):
         result = process_transcribe_media(media_url, task, include_text, include_srt, include_segments, word_timestamps, response_type, language, job_id, words_per_line)
         logger.info(f"Job {job_id}: Transcription process completed successfully")
 
+        # Unpack result (text, srt, segments, detected_language)
+        detected_language = result[3]
+
         # If the result is a file path, upload it using the unified upload_file() method
         if response_type == "direct":
            
@@ -74,6 +77,7 @@ def transcribe(job_id, data):
                 "text": result[0],
                 "srt": result[1],
                 "segments": result[2],
+                "detected_language": detected_language,
                 "text_url": None,
                 "srt_url": None,
                 "segments_url": None,
@@ -87,6 +91,7 @@ def transcribe(job_id, data):
                 "text": None,
                 "srt": None,
                 "segments": None,
+                "detected_language": detected_language,
                 "text_url": upload_file(result[0]) if include_text is True else None,
                 "srt_url": upload_file(result[1]) if include_srt is True else None,
                 "segments_url": upload_file(result[2]) if include_segments is True else None,
