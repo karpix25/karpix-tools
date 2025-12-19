@@ -208,6 +208,9 @@ def determine_alignment_code(position_str, alignment_str, x, y, video_width, vid
         return an_code, True, x, y
 
     # No x,y provided: determine position and alignment based on grid
+    if position_str is None:
+        position_str = 'middle_center'
+    
     pos_lower = position_str.lower()
     if 'top' in pos_lower:
         vertical_base = 7  # Top row an codes start at 7
@@ -628,7 +631,7 @@ def srt_to_ass(transcription_result, style_type, settings, replace_dict, video_r
         'border_style': 1,
         'x': None,
         'y': None,
-        'position': 'middle_center',
+        'position': None,
         'alignment': 'center'  # default alignment
     }
     style_options = {**default_style_settings, **settings}
