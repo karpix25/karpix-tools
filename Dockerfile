@@ -123,33 +123,33 @@ RUN git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg && \
     CFLAGS="-I/usr/include/freetype2" \
     LDFLAGS="-L/usr/lib/x86_64-linux-gnu" \
     ./configure --prefix=/usr/local \
-        --enable-gpl \
-        --enable-pthreads \
-        --enable-neon \
-        --enable-libaom \
-        --enable-libdav1d \
-        --enable-librav1e \
-        --enable-libsvtav1 \
-        --enable-libvmaf \
-        --enable-libzimg \
-        --enable-libx264 \
-        --enable-libx265 \
-        --enable-libvpx \
-        --enable-libwebp \
-        --enable-libmp3lame \
-        --enable-libopus \
-        --enable-libvorbis \
-        --enable-libtheora \
-        --enable-libspeex \
-        --enable-libass \
-        --enable-libfreetype \
-        --enable-libharfbuzz \
-        --enable-fontconfig \
-        --enable-libsrt \
-        --enable-filter=drawtext \
-        --extra-cflags="-I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include" \
-        --extra-ldflags="-L/usr/lib/x86_64-linux-gnu -lfreetype -lfontconfig" \
-        --enable-gnutls \
+    --enable-gpl \
+    --enable-pthreads \
+    --enable-neon \
+    --enable-libaom \
+    --enable-libdav1d \
+    --enable-librav1e \
+    --enable-libsvtav1 \
+    --enable-libvmaf \
+    --enable-libzimg \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-libvpx \
+    --enable-libwebp \
+    --enable-libmp3lame \
+    --enable-libopus \
+    --enable-libvorbis \
+    --enable-libtheora \
+    --enable-libspeex \
+    --enable-libass \
+    --enable-libfreetype \
+    --enable-libharfbuzz \
+    --enable-fontconfig \
+    --enable-libsrt \
+    --enable-filter=drawtext \
+    --extra-cflags="-I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include" \
+    --extra-ldflags="-L/usr/lib/x86_64-linux-gnu -lfreetype -lfontconfig" \
+    --enable-gnutls \
     && make -j$(nproc) && \
     make install && \
     cd .. && rm -rf ffmpeg
@@ -184,14 +184,16 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Create the appuser 
 RUN useradd -m appuser 
 
-# Give appuser ownership of the /app directory (including whisper_cache)
-RUN chown appuser:appuser /app 
+# Give appuser ownership of the /app directory (including whisper_cache) - recursively
+RUN chown -R appuser:appuser /app 
 
 # Important: Switch to the appuser before downloading the model
 USER appuser
 
-# Download faster-whisper large-v3-turbo model as appuser
-RUN python -c "from faster_whisper import WhisperModel; model = WhisperModel('large-v3-turbo', device='cpu', compute_type='int8'); print('Model downloaded successfully')"
+# NOTE: Model download moved to runtime to avoid build failures
+# The model will be downloaded automatically on first use
+# If you want to pre-download during build, uncomment the following:
+# RUN python -c "from faster_whisper import WhisperModel; model = WhisperModel('large-v3-turbo', device='cpu', compute_type='int8'); print('Model downloaded successfully')"
 
 # Install Playwright Chromium browser as appuser
 RUN playwright install chromium
@@ -206,7 +208,7 @@ EXPOSE 8080
 ENV PYTHONUNBUFFERED=1
 
 RUN echo '#!/bin/bash\n\
-gunicorn --bind 0.0.0.0:8080 \
+    gunicorn --bind 0.0.0.0:8080 \
     --workers ${GUNICORN_WORKERS:-2} \
     --timeout ${GUNICORN_TIMEOUT:-300} \
     --worker-class sync \
