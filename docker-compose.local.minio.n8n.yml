@@ -3,6 +3,8 @@ services:
     build: .
     env_file:
       - .env.local.minio.n8n
+    environment:
+      - GUNICORN_WORKERS=1
     ports:
       - "8080:8080"
     volumes:
@@ -35,13 +37,7 @@ services:
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c "
-      sleep 5;
-      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin123;
-      /usr/bin/mc mb myminio/nca-toolkit-local --ignore-existing;
-      /usr/bin/mc anonymous set public myminio/nca-toolkit-local;
-      echo 'MinIO bucket nca-toolkit-local created and configured as public';
-      "
+      /bin/sh -c " sleep 5; /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin123; /usr/bin/mc mb myminio/nca-toolkit-local --ignore-existing; /usr/bin/mc anonymous set public myminio/nca-toolkit-local; echo 'MinIO bucket nca-toolkit-local created and configured as public'; "
     networks:
       - nca-network
 
