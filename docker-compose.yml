@@ -24,6 +24,8 @@ services:
     image: stephengpope/no-code-architects-toolkit:latest
     env_file:
       - .env
+    environment:
+      - GUNICORN_WORKERS=1
     labels:
       - traefik.enable=true
       - traefik.http.routers.ncat.rule=Host(`${APP_DOMAIN}`)

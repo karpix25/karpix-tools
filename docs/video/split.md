@@ -1,37 +1,37 @@
-# Video Split Endpoint
+# Эндпоинт для разделения видео
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/video/split` endpoint is part of the Video API and is used to split a video file into multiple segments based on specified start and end times. This endpoint fits into the overall API structure as a part of the version 1 (`v1`) routes, specifically under the `video` category.
+Эндпоинт `/v1/video/split` является частью Video API и используется для разделения видеофайла на несколько сегментов на основе указанного времени начала и окончания. Этот эндпоинт входит в общую структуру API как часть маршрутов версии 1 (`v1`), в категории `video`.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
-**URL Path:** `/v1/video/split`
-**HTTP Method:** `POST`
+**Путь URL:** `/v1/video/split`
+**Метод HTTP:** `POST`
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key` (required): The API key for authentication.
+- `x-api-key` (обязательно): Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body must be a JSON object with the following properties:
+Тело запроса должно быть объектом JSON со следующими свойствами:
 
-- `video_url` (required, string): The URL of the video file to be split.
-- `splits` (required, array of objects): An array of objects specifying the start and end times for each split. Each object must have the following properties:
-  - `start` (required, string): The start time of the split in the format `hh:mm:ss.ms`.
-  - `end` (required, string): The end time of the split in the format `hh:mm:ss.ms`.
-- `video_codec` (optional, string): The video codec to use for encoding the split videos. Default is `libx264`.
-- `video_preset` (optional, string): The video preset to use for encoding the split videos. Default is `medium`.
-- `video_crf` (optional, number): The Constant Rate Factor (CRF) value for video encoding. Must be between 0 and 51. Default is 23.
-- `audio_codec` (optional, string): The audio codec to use for encoding the split videos. Default is `aac`.
-- `audio_bitrate` (optional, string): The audio bitrate to use for encoding the split videos. Default is `128k`.
-- `webhook_url` (optional, string): The URL to receive a webhook notification when the split operation is complete.
-- `id` (optional, string): A unique identifier for the request.
+- `video_url` (обязательно, строка): URL-адрес видеофайла для разделения.
+- `splits` (обязательно, массив объектов): Массив объектов, указывающих время начала и окончания для каждого фрагмента. Каждый объект должен иметь свойства:
+  - `start` (обязательно, строка): Время начала в формате `чч:мм:сс.мс`.
+  - `end` (обязательно, строка): Время окончания в формате `чч:мм:сс.мс`.
+- `video_codec` (необязательно, строка): Видеокодек для кодирования фрагментов. По умолчанию `libx264`.
+- `video_preset` (необязательно, строка): Пресет кодека. По умолчанию `medium`.
+- `video_crf` (необязательно, число): Значение CRF для кодирования. От 0 до 51. По умолчанию 23.
+- `audio_codec` (необязательно, строка): Аудиокодек. По умолчанию `aac`.
+- `audio_bitrate` (необязательно, строка): Битрейт аудио. По умолчанию `128k`.
+- `webhook_url` (необязательно, строка): URL для уведомления вехуком по завершении операции.
+- `id` (необязательно, строка): Уникальный идентификатор запроса.
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -83,11 +83,11 @@ curl -X POST \
   }'
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The success response follows the general response format specified in `app.py`. Here's an example:
+Успешный ответ соответствует общему формату ответа, описанному в `app.py`. Пример:
 
 ```json
 {
@@ -114,16 +114,16 @@ The success response follows the general response format specified in `app.py`. 
 }
 ```
 
-The `response` field contains an array of objects, each representing a split video file. Each object has a `file_url` property containing the URL of the split video file.
+Поле `response` содержит массив объектов, каждый из которых представляет собой разделенный видеофайл с его URL-адресом.
 
-### Error Responses
+### Ответы с ошибками
 
-- **400 Bad Request**: Returned when the request payload is missing or invalid.
-- **401 Unauthorized**: Returned when the `x-api-key` header is missing or invalid.
-- **429 Too Many Requests**: Returned when the maximum queue length has been reached.
-- **500 Internal Server Error**: Returned when an unexpected error occurs during the video split process.
+- **400 Bad Request**: Возвращается, если тело запроса отсутствует или недействительно.
+- **401 Unauthorized**: Возвращается, если заголовок `x-api-key` отсутствует или недействителен.
+- **429 Too Many Requests**: Возвращается при достижении максимальной длины очереди.
+- **500 Internal Server Error**: Возвращается при непредвиденной ошибке во время разделения видео.
 
-Example error response:
+Пример ответа с ошибкой:
 
 ```json
 {
@@ -138,36 +138,35 @@ Example error response:
 }
 ```
 
-## 5. Error Handling
+## 5. Обработка ошибок
 
-The endpoint handles the following common errors:
+Эндпоинт обрабатывает следующие типичные ошибки:
 
-- Missing or invalid request parameters: Returns a 400 Bad Request error with a descriptive error message.
-- Authentication failure: Returns a 401 Unauthorized error if the `x-api-key` header is missing or invalid.
-- Queue length exceeded: Returns a 429 Too Many Requests error if the maximum queue length has been reached.
-- Unexpected exceptions: Returns a 500 Internal Server Error with the exception message.
+- Отсутствие или недействительность параметров: Возвращает 400 Bad Request с описанием проблемы.
+- Ошибка аутентификации: Возвращает 401 Unauthorized, если ключ API недействителен.
+- Превышение лимита очереди: Возвращает 429 Too Many Requests, если очередь заполнена.
+- Непредвиденные исключения: Возвращает 500 Internal Server Error.
 
-The main application context (`app.py`) also includes error handling for queue length limits and webhook notifications.
+Контекст приложения (`app.py`) также управляет ограничениями очереди и уведомлениями вебхуков.
 
-## 6. Usage Notes
+## 6. Примечания по использованию
 
-- The `video_url` parameter must be a valid URL pointing to a video file.
-- The `splits` array must contain at least one object specifying the start and end times for a split.
-- The start and end times must be in the format `hh:mm:ss.ms` (hours:minutes:seconds.milliseconds).
-- The `video_codec`, `video_preset`, `video_crf`, `audio_codec`, and `audio_bitrate` parameters are optional and can be used to customize the encoding settings for the split videos.
-- If the `webhook_url` parameter is provided, a webhook notification will be sent to the specified URL when the split operation is complete.
-- The `id` parameter is optional and can be used to uniquely identify the request.
+- `video_url` должен указывать на доступный видеофайл.
+- Массив `splits` должен содержать хотя бы один объект.
+- Время начала и окончания должно быть в формате `чч:мм:сс.мс`.
+- Опциональные параметры кодирования позволяют настроить качество выходных файлов.
+- При использовании `webhook_url` уведомление будет отправлено по завершении задачи.
 
-## 7. Common Issues
+## 7. Общие проблемы
 
-- Providing an invalid or inaccessible `video_url`.
-- Specifying overlapping or invalid start and end times in the `splits` array.
-- Exceeding the maximum queue length, which can result in a 429 Too Many Requests error.
+- Недоступный `video_url`.
+- Пересекающиеся или неверные временные метки в массиве `splits`.
+- Отклонение запросов из-за переполнения очереди (429).
 
-## 8. Best Practices
+## 8. Лучшие практики
 
-- Validate the `video_url` parameter before sending the request to ensure it points to a valid video file.
-- Ensure that the start and end times in the `splits` array are correctly formatted and do not overlap.
-- Consider using the `webhook_url` parameter to receive notifications about the completion of the split operation, especially for long-running or asynchronous requests.
-- Implement retry mechanisms and error handling in your client application to handle potential errors and failures.
-- Monitor the queue length and adjust the `MAX_QUEUE_LENGTH` environment variable as needed to prevent excessive queuing and potential timeouts.
+- Проверяйте `video_url` перед отправкой запроса.
+- Убедитесь в корректности формата временных меток.
+- Используйте вебхуки для асинхронного получения результатов.
+- Реализуйте механизмы повторных попыток для обработки ошибок 429.
+- Мониторьте длину очереди и настраивайте переменную `MAX_QUEUE_LENGTH` при необходимости.

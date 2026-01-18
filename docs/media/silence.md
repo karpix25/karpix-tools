@@ -1,35 +1,35 @@
-# Silence Detection Endpoint
+# Эндпоинт детектирования тишины
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/media/silence` endpoint is part of the Media API and is designed to detect silence intervals in a given media file. It takes a media URL, along with various parameters for configuring the silence detection process, and returns the detected silence intervals. This endpoint fits into the overall API structure as a part of the version 1 (v1) media-related endpoints.
+Эндпоинт `/v1/media/silence` является частью Media API и предназначен для обнаружения интервалов тишины в заданном медиафайле. Он принимает URL медиафайла вместе с различными параметрами настройки процесса и возвращает обнаруженные интервалы тишины. Этот эндпоинт входит в общую структуру API как часть медиа-эндпоинтов версии 1 (v1).
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
 ```
 POST /v1/media/silence
 ```
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key` (required): The API key for authentication.
+- `x-api-key` (обязательно): Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body should be a JSON object with the following parameters:
+Тело запроса должно быть объектом JSON со следующими параметрами:
 
-- `media_url` (required, string): The URL of the media file to be processed.
-- `start` (optional, string): The start time for the silence detection process, in the format `HH:MM:SS.ms`. If not provided, the process will start from the beginning of the media file.
-- `end` (optional, string): The end time for the silence detection process, in the format `HH:MM:SS.ms`. If not provided, the process will continue until the end of the media file.
-- `noise` (optional, string): The noise threshold for silence detection, in decibels (dB). Default is `-30dB`.
-- `duration` (required, number): The minimum duration (in seconds) for a silence interval to be considered valid.
-- `mono` (optional, boolean): Whether to process the audio as mono (single channel) or not. Default is `true`.
-- `webhook_url` (required, string): The URL to which the response should be sent as a webhook.
-- `id` (required, string): A unique identifier for the request.
+- `media_url` (обязательно, строка): URL-адрес медиафайла для обработки.
+- `start` (необязательно, строка): Время начала процесса в формате `ЧЧ:ММ:СС.мс`. Если не указано, процесс начнется с начала файла.
+- `end` (необязательно, строка): Время окончания процесса в формате `ЧЧ:ММ:СС.мс`. Если не указано, процесс продолжится до конца файла.
+- `noise` (необязательно, строка): Порог шума для обнаружения тишины в децибелах (дБ). По умолчанию `-30dB`.
+- `duration` (обязательно, число): Минимальная длительность (в секундах) интервала тишины, чтобы он считался валидным.
+- `mono` (необязательно, логическое): Обрабатывать ли аудио как моно (один канал). По умолчанию `true`.
+- `webhook_url` (обязательно, строка): URL-адрес для уведомлений вехуком.
+- `id` (обязательно, строка): Уникальный идентификатор запроса.
 
-The `validate_payload` directive in the routes file enforces the following JSON schema for the request body:
+Директива `validate_payload` в файле маршрутов применяет следующую схему:
 
 ```python
 {
@@ -44,12 +44,12 @@ The `validate_payload` directive in the routes file enforces the following JSON 
         "webhook_url": {"type": "string", "format": "uri"},
         "id": {"type": "string"}
     },
-    "required": ["media_url", "duration"],
+    "required": ["media_url", "duration", "webhook_url", "id"],
     "additionalProperties": False
 }
 ```
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -81,11 +81,11 @@ curl -X POST \
 }'
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The success response will be sent as a webhook to the specified `webhook_url`. The response format follows the general response structure defined in the main application context (`app.py`). Here's an example:
+Успешный ответ будет отправлен вехуком на указанный `webhook_url`. Формат ответа соответствует общей структуре в `app.py`. Пример:
 
 ```json
 {
@@ -114,63 +114,32 @@ The success response will be sent as a webhook to the specified `webhook_url`. T
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-- **400 Bad Request**: This error is returned when the request body is missing or contains invalid parameters. Example response:
+- **400 Bad Request**: Некорректный запрос или отсутствующие параметры.
+- **401 Unauthorized**: Ошибка аутентификации API-ключа.
+- **500 Internal Server Error**: Непредвиденная ошибка на сервере во время процесса.
 
-```json
-{
-    "code": 400,
-    "message": "Invalid request payload"
-}
-```
+## 5. Обработка ошибок
 
-- **401 Unauthorized**: This error is returned when the `x-api-key` header is missing or invalid. Example response:
+Эндпоинт обрабатывает ошибки параметров, аутентификации и исключения во время работы. При заполнении очереди возвращается ошибка 429 Too Many Requests.
 
-```json
-{
-    "code": 401,
-    "message": "Unauthorized"
-}
-```
+## 6. Примечания по использованию
 
-- **500 Internal Server Error**: This error is returned when an unexpected error occurs during the silence detection process. Example response:
+- `media_url` должен указывать на доступный файл.
+- `start` и `end` позволяют ограничить область поиска тишины.
+- Параметр `noise` управляет порогом чувствительности. Меньшие значения (напр. `-40dB`) обнаружат больше тишины.
+- `duration` полезен для фильтрации слишком коротких пауз.
 
-```json
-{
-    "code": 500,
-    "message": "An error occurred during the silence detection process"
-}
-```
+## 7. Общие проблемы
 
-## 5. Error Handling
+- Недоступный `media_url`.
+- Временные метки `start`/`end` вне диапазона длительности файла.
+- Слишком низкое значение `duration`, приводящее к избыточности результатов.
 
-The endpoint handles the following common errors:
+## 8. Лучшие практики
 
-- Missing or invalid request parameters: Returns a 400 Bad Request error.
-- Missing or invalid `x-api-key` header: Returns a 401 Unauthorized error.
-- Unexpected exceptions during the silence detection process: Returns a 500 Internal Server Error.
-
-The main application context (`app.py`) also includes error handling for situations where the task queue has reached its maximum length (`MAX_QUEUE_LENGTH`). In such cases, a 429 Too Many Requests error is returned.
-
-## 6. Usage Notes
-
-- The `media_url` parameter should point to a valid media file that can be processed by the silence detection service.
-- The `start` and `end` parameters are optional and can be used to specify a time range within the media file for silence detection.
-- The `noise` parameter allows you to adjust the noise threshold for silence detection. Lower values (e.g., `-40dB`) will detect more silence intervals, while higher values (e.g., `-20dB`) will detect fewer silence intervals.
-- The `duration` parameter specifies the minimum duration (in seconds) for a silence interval to be considered valid. This can be useful for filtering out very short silence intervals that may not be relevant.
-- The `mono` parameter determines whether the audio should be processed as a single channel (mono) or multiple channels (stereo or surround).
-
-## 7. Common Issues
-
-- Providing an invalid or inaccessible `media_url`.
-- Specifying `start` and `end` times that are outside the duration of the media file.
-- Setting the `duration` parameter to an unreasonably low value, which may result in detecting too many short silence intervals.
-
-## 8. Best Practices
-
-- Validate the `media_url` parameter to ensure it points to a valid and accessible media file.
-- Consider using the `start` and `end` parameters to focus the silence detection on a specific time range within the media file, if needed.
-- Adjust the `noise` and `duration` parameters based on your specific use case and requirements for silence detection.
-- If you need to process stereo or surround audio, set the `mono` parameter to `false`.
-- Monitor the response from the endpoint to ensure that the silence detection process completed successfully and that the detected silence intervals meet your expectations.
+- Проверяйте доступность медиафайла.
+- Используйте временные рамки для фокусировки на нужных участках.
+- Настраивайте `noise` и `duration` под конкретный тип контента.
+- Мониторьте статус задач через вебхуки.

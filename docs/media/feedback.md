@@ -1,44 +1,44 @@
-# Media Feedback Portal
+# Портал отзывов о медиа
 
-This endpoint serves a static web page for collecting media feedback.
+Этот эндпоинт служит для отображения статической веб-страницы для сбора отзывов о медиа-контенте.
 
-## Endpoint
+## Эндпоинт (Endpoint)
 
 ```
 GET /v1/media/feedback
 ```
 
-### Authentication
+### Аутентификация
 
-This endpoint does not require authentication and is publicly accessible.
+Этот эндпоинт не требует аутентификации и является общедоступным.
 
-### Response
+### Ответ
 
-Returns the HTML feedback form page.
+Возвращает HTML-страницу с формой обратной связи.
 
-## Static Files
+## Статические файлы
 
-Additional static files (CSS, JavaScript, images) can be accessed at:
+Дополнительные статические файлы (CSS, JavaScript, изображения) доступны по адресу:
 
 ```
 GET /v1/media/feedback/<filename>
 ```
 
-Replace `<filename>` with the path to the static resource relative to the static directory.
+Замените `<filename>` путем к статическому ресурсу относительно директории static.
 
-## Development
+## Разработка
 
-The static website files are stored in:
+Файлы статического сайта хранятся в:
 
 ```
 services/v1/media/feedback/static/
 ```
 
-This directory contains:
+Эта директория содержит:
 
-- `index.html` - Main HTML file
-- `css/styles.css` - Stylesheet
-- `js/script.js` - JavaScript code
-- `images/` - Directory for image assets
+- `index.html` - Основной HTML-файл
+- `css/styles.css` - Таблица стилей
+- `js/script.js` - JavaScript код
+- `images/` - Директория для изображений
 
-To modify the feedback page, edit these files directly.
+Чтобы изменить страницу обратной связи, редактируйте эти файлы напрямую.

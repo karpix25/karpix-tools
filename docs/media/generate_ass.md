@@ -1,40 +1,38 @@
-# ASS Subtitle Generation Endpoint (v1)
+# Эндпоинт генерации субтитров ASS (v1)
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/media/generate/ass` endpoint is part of the Media API and is responsible for generating an ASS (Advanced SubStation Alpha) subtitle file from a media file (typically a video or audio). It accepts a media URL and various styling options for the subtitles. The endpoint utilizes the `generate_ass_captions_v1` service to generate the ASS file, which is then uploaded to cloud storage, and the cloud URL is returned in the response.
+Эндпоинт `/v1/media/generate/ass` является частью Media API и отвечает за генерацию файла субтитров ASS (Advanced SubStation Alpha) из медиафайла (обычно видео или аудио). Он принимает URL-адрес медиа и различные параметры стилизации субтитров. Эндпоинт использует сервис `generate_ass_captions_v1` для генерации ASS-файла, который затем загружается в облачное хранилище, а URL-адрес возвращается в ответе.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
 **URL:** `/v1/media/generate/ass`
-**Method:** `POST`
+**Метод:** `POST`
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key`: Required. The API key for authentication.
+- `x-api-key`: Обязательно. Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body must be a JSON object with the following properties:
-> **Note:** `canvas_width` and `canvas_height` are recommended for audio files (e.g., MP3) to control the subtitle canvas size.
+Тело запроса должно быть объектом JSON со следующими свойствами:
+> **Примечание:** Параметры `canvas_width` и `canvas_height` рекомендуются для аудиофайлов (например, MP3), чтобы контролировать размер холста субтитров.
 
-- `media_url` (string, required): The URL of the media file (video or audio) to generate subtitles for.
-- `canvas_width` (integer, optional): Subtitle canvas width in pixels.
-- `canvas_height` (integer, optional): Subtitle canvas height in pixels.
-- `settings` (object, optional): An object containing various styling options for the subtitles. See the schema below for available options.
-- `replace` (array, optional): An array of objects with `find` and `replace` properties, specifying text replacements to be made in the subtitles.
-- `exclude_time_ranges` (array, optional): List of time ranges to skip when generating subtitles. Each item must be an object with:
-  - `start`: (string, required) The start time of the excluded range, as a string timecode in `hh:mm:ss.ms` format (e.g., `00:01:23.456`).
-  - `end`: (string, required) The end time, as a string timecode in `hh:mm:ss.ms` format, which must be strictly greater than `start`.
-- `language` (string, optional): The language code for the subtitles (e.g., "en", "fr"). Defaults to "auto".
-- `webhook_url` (string, optional): A URL to receive a webhook notification when the subtitle generation process is complete.
-- `id` (string, optional): An identifier for the request.
+- `media_url` (string, обязательно): URL-адрес медиафайла для генерации субтитров.
+- `canvas_width` (integer, необязательно): Ширина холста субтитров в пикселях.
+- `canvas_height` (integer, необязательно): Высота холста субтитров в пикселях.
+- `settings` (object, необязательно): Объект с параметрами стилизации. См. схему ниже.
+- `replace` (array, необязательно): Массив объектов `find` и `replace` для текстовых замен в субтитрах.
+- `exclude_time_ranges` (array, необязательно): Время, которое нужно пропустить при генерации. Каждый элемент должен содержать:
+  - `start`: (string, обязательно) Время начала в формате `чч:мм:сс.мс`.
+  - `end`: (string, обязательно) Время окончания в формате `чч:мм:сс.мс` (должно быть больше `start`).
+- `language` (string, необязательно): Код языка (например, "ru", "en"). По умолчанию "auto".
+- `webhook_url` (string, необязательно): URL для уведомления вехуком по завершении.
+- `id` (string, необязательно): Идентификатор запроса.
 
-
-
-#### Settings Schema
+#### Схема настроек (Settings Schema)
 
 ```json
 {
@@ -68,11 +66,11 @@ The request body must be a JSON object with the following properties:
         "style": {
             "type": "string",
             "enum": [
-                "classic",     // Regular subtitle with all text displayed at once
-                "karaoke",     // Highlights words sequentially in a karaoke style
-                "highlight",   // Shows full text but highlights the current word
-                "underline",   // Shows full text but underlines the current word
-                "word_by_word" // Shows one word at a time
+                "classic",     // Весь текст отображается сразу
+                "karaoke",     // Подсветка слов последовательно
+                "highlight",   // Подсветка текущего слова (весь текст виден)
+                "underline",   // Подчеркивание текущего слова
+                "word_by_word" // По одному слову за раз
             ]
         },
         "outline_width": {"type": "integer"},
@@ -84,17 +82,17 @@ The request body must be a JSON object with the following properties:
 }
 ```
 
-### Example Requests
+### Примеры запросов
 
-#### Example 1: Basic Automatic Subtitle Generation
+#### Пример 1: Базовая генерация субтитров
 ```json
 {
     "media_url": "https://example.com/video.mp4"
 }
 ```
-This minimal request will automatically transcribe the media and generate white subtitles at the bottom center.
+Этот запрос автоматически транскрибирует медиа и создаст белые субтитры внизу по центру.
 
-#### Example 2: Custom Styling
+#### Пример 2: Пользовательская стилизация
 ```json
 {
     "media_url": "https://example.com/video.mp4",
@@ -111,7 +109,7 @@ This minimal request will automatically transcribe the media and generate white 
 }
 ```
 
-#### Example 3: Karaoke-Style Subtitles with Advanced Options
+#### Пример 3: Караоке-стиль с расширенными параметрами
 ```json
 {
     "media_url": "https://example.com/video.mp4",
@@ -133,21 +131,17 @@ This minimal request will automatically transcribe the media and generate white 
     },
     "replace": [
         {
-            "find": "um",
-            "replace": ""
-        },
-        {
-            "find": "like",
+            "find": "эм",
             "replace": ""
         }
     ],
     "webhook_url": "https://example.com/webhook",
     "id": "request-123",
-    "language": "en"
+    "language": "ru"
 }
 ```
 
-#### Example 4: Excluding Time Ranges from Subtitle Generation
+#### Пример 4: Исключение временных диапазонов
 ```json
 {
     "media_url": "https://example.com/video.mp4",
@@ -160,13 +154,12 @@ This minimal request will automatically transcribe the media and generate white 
         "font_size": 24
     },
     "exclude_time_ranges": [
-        { "start": "00:00:10.000", "end": "00:00:20.000" },
-        { "start": "00:00:30.000", "end": "00:00:40.000" }
+        { "start": "00:00:10.000", "end": "00:00:20.000" }
     ]
 }
 ```
 
-#### Example 5: Generating Subtitles for an MP3 (Audio) File
+#### Пример 5: Генерация субтитров для аудиофайла (MP3)
 ```json
 {
     "canvas_width": 1280,
@@ -182,6 +175,7 @@ This minimal request will automatically transcribe the media and generate white 
 }
 ```
 
+### Пример cURL
 
 ```bash
 curl -X POST \
@@ -202,37 +196,31 @@ curl -X POST \
             "style": "karaoke",
             "outline_width": 2
         },
-        "replace": [
-            {
-                "find": "um",
-                "replace": ""
-            }
-        ],
         "id": "custom-request-id"
     }' \
     https://your-api-endpoint.com/v1/media/generate/ass
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The response will be a JSON object with the following properties:
+Ответ будет объектом JSON со следующими свойствами:
 
-- `code` (integer): The HTTP status code (200 for success).
-- `id` (string): The request identifier, if provided in the request.
-- `job_id` (string): A unique identifier for the job.
-- `response` (string): The cloud URL of the generated ASS subtitle file.
-- `message` (string): A success message.
-- `pid` (integer): The process ID of the worker that processed the request.
-- `queue_id` (integer): The ID of the queue used for processing the request.
-- `run_time` (float): The time taken to process the request (in seconds).
-- `queue_time` (float): The time the request spent in the queue (in seconds).
-- `total_time` (float): The total time taken for the request (in seconds).
-- `queue_length` (integer): The current length of the processing queue.
-- `build_number` (string): The build number of the application.
+- `code` (integer): Код HTTP (200 при успехе).
+- `id` (string): Идентификатор запроса.
+- `job_id` (string): Уникальный ID задачи.
+- `response` (string): URL-адрес сгенерированного ASS-файла в облаке.
+- `message` (string): Сообщение об успехе.
+- `pid` (integer): ID процесса воркера.
+- `queue_id` (integer): ID используемой очереди.
+- `run_time` (float): Время обработки (сек).
+- `queue_time` (float): Время ожидания в очереди (сек).
+- `total_time` (float): Общее время (сек).
+- `queue_length` (integer): Текущая длина очереди.
+- `build_number` (string): Номер сборки.
 
-Example:
+Пример:
 
 ```json
 {
@@ -251,100 +239,38 @@ Example:
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-#### Missing or Invalid Parameters
+#### Ошибка параметров (400)
+Возвращается при отсутствии обязательных полей или неверном формате.
 
-**Status Code:** 400 Bad Request
+#### Ошибка шрифта (400)
+Возвращается, если запрашиваемый шрифт недоступен, вместе со списком доступных шрифтов.
 
-```json
-{
-    "code": 400,
-    "id": "request-123",
-    "job_id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
-    "message": "Missing or invalid parameters",
-    "pid": 12345,
-    "queue_id": 140682639937472,
-    "queue_length": 0,
-    "build_number": "1.0.0"
-}
-```
+#### Ошибка сервера (500)
+Возвращается при непредвиденном сбое во время генерации.
 
-#### Font Error
+## 5. Обработка ошибок
 
-**Status Code:** 400 Bad Request
+Эндпоинт обрабатывает типичные ошибки (шрифты, параметры, сбои серверов). При переполнении очереди возвращается ошибка 429 Too Many Requests.
 
-```json
-{
-    "code": 400,
-    "error": "The requested font 'InvalidFont' is not available. Please choose from the available fonts.",
-    "available_fonts": ["Arial", "Times New Roman", "Courier New", ...],
-    "pid": 12345,
-    "queue_id": 140682639937472,
-    "queue_length": 0,
-    "build_number": "1.0.0"
-}
-```
+## 6. Примечания по использованию
 
-#### Internal Server Error
+- `media_url` должен быть доступен.
+- Настройки `settings` позволяют кастомизировать стиль, позицию и поведение субтитров.
+- Параметр `replace` полезен для исправления слов или цензуры.
+- Для аудиофайлов обязательно указывайте `canvas_width` и `canvas_height`.
 
-**Status Code:** 500 Internal Server Error
+## 7. Общие проблемы
 
-```json
-{
-    "code": 500,
-    "id": "request-123",
-    "job_id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
-    "error": "An unexpected error occurred during the subtitle generation process.",
-    "pid": 12345,
-    "queue_id": 140682639937472,
-    "queue_length": 0,
-    "build_number": "1.0.0"
-}
-```
+- Недоступный `media_url`.
+- Запрос несуществующего шрифта.
+- Отсутствие размеров холста для аудио-файлов.
+- Ошибки очереди (429).
 
-## 5. Error Handling
+## 8. Лучшие практики
 
-The endpoint handles the following common errors:
-
-- **Missing or Invalid Parameters**: If any required parameters are missing or invalid, a 400 Bad Request error is returned with a descriptive error message.
-- **Font Error**: If the requested font is not available, a 400 Bad Request error is returned with a list of available fonts.
-- **Internal Server Error**: If an unexpected error occurs during the subtitle generation process, a 500 Internal Server Error is returned with an error message.
-
-Additionally, the main application context (`app.py`) includes error handling for queue overload. If the maximum queue length (`MAX_QUEUE_LENGTH`) is set and the queue size reaches that limit, a 429 Too Many Requests error is returned with a descriptive message.
-
-## 6. Usage Notes
-
-- The `media_url` parameter must be a valid URL pointing to a video or audio file.
-- The `settings` parameter allows for customization of the subtitle appearance and behavior:
-  - `style` determines how subtitles are displayed, with options including:
-    - `classic`: Regular subtitle with all text displayed at once
-    - `karaoke`: Highlights words sequentially in a karaoke style as they're spoken
-    - `highlight`: Shows the full subtitle text but highlights each word as it's spoken
-    - `underline`: Shows the full subtitle text but underlines each word as it's spoken
-    - `word_by_word`: Shows only one word at a time
-  - `position` can be used to place subtitles in one of nine positions on the screen
-  - `alignment` determines text alignment within the position (left, center, right)
-  - `font_family` can be any available system font
-  - Color options can be set using hex codes (e.g., "#FFFFFF" for white)
-- The `replace` parameter can be used to perform text replacements in the subtitles (useful for correcting words or censoring content).
-- The `webhook_url` parameter is optional and can be used to receive a notification when the subtitle generation process is complete.
-- The `id` parameter is optional and can be used to identify the request in webhook responses.
-- The `language` parameter is optional and can be used to specify the language of the subtitles for transcription. If not provided, the language will be automatically detected.
-- The `exclude_time_ranges` parameter can be used to specify time ranges to be excluded from subtitle generation.
-- If either `canvas_width` or `canvas_height` is provided, both must be provided and must be greater than 0.
-
-## 7. Common Issues
-
-- Providing an invalid or inaccessible `media_url`.
-- Requesting an unavailable font in the `settings` object.
-- Using this endpoint with an audio-only file (e.g., MP3) and not providing both `canvas_width` and `canvas_height`. For audio files, you must specify both dimensions to generate a valid ASS subtitle file.
-- Exceeding the maximum queue length, resulting in a 429 Too Many Requests error.
-
-## 8. Best Practices
-
-- Validate the `media_url` parameter before sending the request to ensure it points to a valid and accessible media file.
-- Use the `webhook_url` parameter to receive notifications about the subtitle generation process, rather than polling the API for updates.
-- Provide descriptive and meaningful `id` values to easily identify requests in logs and responses.
-- Use the `replace` parameter judiciously to avoid unintended text replacements in the subtitles.
-- Consider caching the generated ASS files for frequently requested media to improve performance and reduce processing time.
+- Проверяйте доступность медиа перед запросом.
+- Используйте вебхуки для асинхронного получения результатов.
+- Указывайте осмысленные `id` для отслеживания задач.
+- Используйте кэширование результатов для часто запрашиваемого контента.

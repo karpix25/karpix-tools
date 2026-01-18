@@ -116,6 +116,16 @@ def process_transcription(media_url, output_type, max_chars=56, language=None,):
     except Exception as e:
         logger.error(f"Transcription failed: {str(e)}")
         raise
+    finally:
+        # Force garbage collection to release memory
+        import gc
+        import ctypes
+        gc.collect()
+        try:
+            ctypes.CDLL('libc.so.6').malloc_trim(0)
+            logger.info("Forced memory release with malloc_trim")
+        except Exception:
+            pass  # Not on Linux or libc not available
 
 
 def generate_ass_subtitle(result, max_chars):

@@ -1,34 +1,34 @@
-# Media Metadata
+# Метаданные медиа
 
-This endpoint extracts detailed metadata from media files (video, audio, image) including format, duration, codec information, resolution, and bitrates.
+Этот эндпоинт извлекает подробные метаданные из медиафайлов (видео, аудио, изображения), включая формат, длительность, информацию о кодеках, разрешение и битрейты.
 
-## Endpoint
+## Эндпоинт (Endpoint)
 
 `POST /v1/media/metadata`
 
-## Authentication
+## Аутентификация
 
-This endpoint requires API authentication. See [Authentication](../toolkit/authenticate.md) for details.
+Этот эндпоинт требует аутентификации по API. Подробности см. в разделе [Аутентификация](../toolkit/authenticate.md).
 
-## Request
+## Запрос
 
 ```json
 {
   "media_url": "https://example.com/media.mp4",
-  "webhook_url": "https://example.com/webhook",  // Optional
-  "id": "custom-id"  // Optional
+  "webhook_url": "https://example.com/webhook",  // Необязательно
+  "id": "custom-id"  // Необязательно
 }
 ```
 
-| Parameter | Type | Required | Description |
+| Параметр | Тип | Обязательно | Описание |
 |-----------|------|----------|-------------|
-| media_url | string | Yes | URL of the media file to analyze |
-| webhook_url | string | No | URL to receive the processing result |
-| id | string | No | Custom identifier for tracking the request |
+| media_url | string | Да | URL медиафайла для анализа |
+| webhook_url | string | Нет | URL для получения результата обработки |
+| id | string | Нет | Пользовательский идентификатор для отслеживания запроса |
 
-## Response
+## Ответ
 
-**Success (200 OK)**
+**Успех (200 OK)**
 
 ```json
 {
@@ -73,9 +73,9 @@ This endpoint requires API authentication. See [Authentication](../toolkit/authe
 }
 ```
 
-For audio-only files, video-related fields will not be included. Similarly, for video files without audio, audio-related fields will not be included.
+Для аудиофайлов поля, связанные с видео, будут отсутствовать. Аналогично для видео без звука будут отсутствовать поля аудио.
 
-**Queued (202 Accepted)**
+**В очереди (202 Accepted)**
 
 ```json
 {
@@ -91,14 +91,14 @@ For audio-only files, video-related fields will not be included. Similarly, for 
 }
 ```
 
-**Error (4xx/5xx)**
+**Ошибка (4xx/5xx)**
 
 ```json
 {
   "code": 500,
   "id": "custom-id",
   "job_id": "550e8400-e29b-41d4-a716-446655440000",
-  "message": "Error extracting metadata: [error details]",
+  "message": "Error extracting metadata: [подробности ошибки]",
   "pid": 12345,
   "queue_id": 67890,
   "queue_length": 0,
@@ -106,9 +106,9 @@ For audio-only files, video-related fields will not be included. Similarly, for 
 }
 ```
 
-## Example
+## Пример
 
-### Request
+### Запрос
 
 ```bash
 curl -X POST https://api.example.com/v1/media/metadata \
@@ -120,7 +120,7 @@ curl -X POST https://api.example.com/v1/media/metadata \
   }'
 ```
 
-### Response
+### Ответ
 
 ```json
 {

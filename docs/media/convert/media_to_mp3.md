@@ -1,35 +1,35 @@
-# Media to MP3 Conversion
+# Конвертация медиа в MP3
 
-The `/v1/media/convert/mp3` endpoint is part of the Flask API application and is responsible for converting various media files into MP3 format. This endpoint is registered in the `app.py` file under the `v1_media_convert_mp3_bp` blueprint.
+Эндпоинт `/v1/media/convert/mp3` является частью API-приложения Flask и отвечает за конвертацию различных медиафайлов в формат MP3. Этот эндпоинт зарегистрирован в файле `app.py` под blueprint `v1_media_convert_mp3_bp`.
 
-## Endpoint Details
+## Детали эндпоинта
 
-**URL Path:** `/v1/media/convert/mp3`
+**Путь URL:** `/v1/media/convert/mp3`
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/media/convert/mp3` endpoint is a part of the API's media transformation functionality. It allows users to convert various media files (audio or video) to MP3 format. This endpoint fits into the overall API structure as a part of the `v1` namespace, which represents the first version of the API.
+Эндпоинт `/v1/media/convert/mp3` является частью функциональности трансформации медиа в API. Он позволяет пользователям конвертировать различные медиафайлы (аудио или видео) в формат MP3. Этот эндпоинт входит в общую структуру API как часть пространства имен `v1`, представляющего первую версию API.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
 ```
 POST /v1/media/convert/mp3
 ```
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key` (required): The API key for authentication.
+- `x-api-key` (обязательно): Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-- `media_url` (required, string): The URL of the media file to be converted.
-- `webhook_url` (optional, string): The URL to receive a webhook notification upon completion.
-- `id` (optional, string): A unique identifier for the request.
-- `bitrate` (optional, string): The desired bitrate for the output MP3 file, in the format `<value>k` (e.g., `128k`). If not provided, defaults to `128k`.
+- `media_url` (обязательно, строка): URL-адрес медиафайла для конвертации.
+- `webhook_url` (необязательно, строка): URL для получения уведомления вехуком по завершении.
+- `id` (необязательно, строка): Уникальный идентификатор запроса.
+- `bitrate` (необязательно, строка): Желаемый битрейт для выходного MP3 файла, в формате `<значение>k` (например, `128k`). Если не указан, по умолчанию используется `128k`.
 
-The `validate_payload` directive in the routes file enforces the following JSON schema for the request body:
+Директива `validate_payload` в файле маршрутов применяет следующую JSON-схему для тела запроса:
 
 ```json
 {
@@ -45,7 +45,7 @@ The `validate_payload` directive in the routes file enforces the following JSON 
 }
 ```
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -64,11 +64,11 @@ curl -X POST \
      https://your-api-endpoint.com/v1/media/convert/mp3
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The success response follows the general response structure defined in `app.py`. Here's an example:
+Успешный ответ соответствует общей структуре ответа, определенной в `app.py`. Пример:
 
 ```json
 {
@@ -88,13 +88,13 @@ The success response follows the general response structure defined in `app.py`.
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-- **400 Bad Request**: Returned when the request payload is invalid or missing required parameters.
-- **401 Unauthorized**: Returned when the `x-api-key` header is missing or invalid.
-- **500 Internal Server Error**: Returned when an unexpected error occurs during the conversion process.
+- **400 Bad Request**: Возвращается, когда тело запроса недействительно или отсутствуют обязательные параметры.
+- **401 Unauthorized**: Возвращается, когда заголовок `x-api-key` отсутствует или недействителен.
+- **500 Internal Server Error**: Возвращается при возникновении непредвиденной ошибки во время процесса конвертации.
 
-Example error response:
+Пример ответа с ошибкой:
 
 ```json
 {
@@ -109,34 +109,34 @@ Example error response:
 }
 ```
 
-## 5. Error Handling
+## 5. Обработка ошибок
 
-The endpoint handles the following common errors:
+Эндпоинт обрабатывает следующие распространенные ошибки:
 
-- Missing or invalid `media_url` parameter: Returns a 400 Bad Request error.
-- Invalid `bitrate` parameter: Returns a 400 Bad Request error.
-- Authentication failure: Returns a 401 Unauthorized error.
-- Unexpected exceptions during the conversion process: Returns a 500 Internal Server Error.
+- Отсутствие или недействительность параметра `media_url`: Возвращается ошибка 400 Bad Request.
+- Недействительный параметр `bitrate`: Возвращается ошибка 400 Bad Request.
+- Ошибка аутентификации: Возвращается ошибка 401 Unauthorized.
+- Непредвиденные исключения во время процесса конвертации: Возвращается ошибка 500 Internal Server Error.
 
-Additionally, the main application context (`app.py`) includes error handling for queue overload. If the maximum queue length is reached, the endpoint will return a 429 Too Many Requests error.
+Кроме того, контекст основного приложения (`app.py`) включает обработку перегрузки очереди. Если достигнута максимальная длина очереди, эндпоинт вернет ошибку 429 Too Many Requests.
 
-## 6. Usage Notes
+## 6. Примечания по использованию
 
-- The `media_url` parameter should point to a valid media file (audio or video) that can be converted to MP3 format.
-- If the `webhook_url` parameter is provided, a webhook notification will be sent to the specified URL upon completion of the conversion process.
-- The `id` parameter can be used to uniquely identify the request, which can be helpful for tracking and logging purposes.
-- The `bitrate` parameter allows you to specify the desired bitrate for the output MP3 file. If not provided, the default bitrate of 128k will be used.
+- Параметр `media_url` должен указывать на действительный медиафайл (аудио или видео), который может быть конвертирован в формат MP3.
+- Если указан параметр `webhook_url`, уведомление вехуком будет отправлено по завершении процесса конвертации.
+- Параметр `id` можно использовать для уникальной идентификации запроса, что полезно для отслеживания и логирования.
+- Параметр `bitrate` позволяет указать желаемый битрейт для выходного MP3 файла. Если не указан, используется стандартное значение 128k.
 
-## 7. Common Issues
+## 7. Общие проблемы
 
-- Providing an invalid or inaccessible `media_url`.
-- Attempting to convert unsupported media formats.
-- Exceeding the maximum queue length, resulting in a 429 Too Many Requests error.
+- Предоставление недействительного или недоступного `media_url`.
+- Попытка конвертации неподдерживаемых медиаформатов.
+- Превышение максимальной длины очереди, что приводит к ошибке 429 Too Many Requests.
 
-## 8. Best Practices
+## 8. Лучшие практики
 
-- Validate the `media_url` parameter before sending the request to ensure it points to a valid and accessible media file.
-- Consider providing a `webhook_url` parameter to receive notifications about the conversion process completion.
-- Use a unique `id` parameter for each request to facilitate tracking and logging.
-- Implement retry mechanisms in case of transient errors or queue overload situations.
-- Monitor the API logs for any errors or issues during the conversion process.
+- Проверяйте параметр `media_url` перед отправкой запроса.
+- Рекомендуется использовать параметр `webhook_url` для получения уведомлений о завершении конвертации.
+- Используйте уникальный `id` для каждого запроса для облегчения отслеживания.
+- Реализуйте механизмы повторных попыток на случай временных ошибок или перегрузки очереди.
+- Мониторьте логи API на наличие ошибок или проблем во время процесса конвертации.

@@ -1,29 +1,29 @@
-# Video Concatenation Endpoint
+# Эндпоинт для объединения видео
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/video/concatenate` endpoint is a part of the Video API and is responsible for combining multiple video files into a single video file. This endpoint fits into the overall API structure as a part of the version 1 (v1) routes, specifically under the `/v1/video` namespace.
+Эндпоинт `/v1/video/concatenate` является частью Video API и отвечает за объединение нескольких видеофайлов в один видеофайл. Этот эндпоинт вписывается в общую структуру API как часть маршрутов версии 1 (v1), а именно в пространстве имен `/v1/video`.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
-**URL Path:** `/v1/video/concatenate`
-**HTTP Method:** `POST`
+**Путь URL:** `/v1/video/concatenate`
+**Метод HTTP:** `POST`
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key` (required): The API key for authentication.
+- `x-api-key` (обязательно): Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body must be a JSON object with the following properties:
+Тело запроса должно быть объектом JSON со следующими свойствами:
 
-- `video_urls` (required, array of objects): An array of video URLs to be concatenated. Each object in the array must have a `video_url` property (string, URI format) containing the URL of the video file.
-- `webhook_url` (optional, string, URI format): The URL to which the response should be sent as a webhook.
-- `id` (optional, string): An identifier for the request.
+- `video_urls` (обязательно, массив объектов): Массив URL-адресов видео для объединения. Каждый объект в массиве должен иметь свойство `video_url` (строка, формат URI), содержащее URL-адрес видеофайла.
+- `webhook_url` (необязательно, строка, формат URI): URL-адрес, на который должен быть отправлен ответ в виде вебхука.
+- `id` (необязательно, строка): Идентификатор запроса.
 
-The `validate_payload` decorator in the routes file enforces the following JSON schema for the request body:
+Декоратор `validate_payload` в файле маршрутов применяет следующую схему JSON для тела запроса:
 
 ```json
 {
@@ -48,7 +48,7 @@ The `validate_payload` decorator in the routes file enforces the following JSON 
 }
 ```
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -78,11 +78,11 @@ curl -X POST \
      https://your-api-endpoint.com/v1/video/concatenate
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The success response follows the general response format defined in the `app.py` file. Here's an example:
+Успешный ответ соответствует общему формату ответа, определенному в файле `app.py`. Вот пример:
 
 ```json
 {
@@ -102,11 +102,11 @@ The success response follows the general response format defined in the `app.py`
 }
 ```
 
-The `response` field contains the URL of the combined video file uploaded to cloud storage.
+Поле `response` содержит URL-адрес объединенного видеофайла, загруженного в облачное хранилище.
 
-### Error Responses
+### Ответы с ошибками
 
-- **400 Bad Request**: Returned when the request body is missing or invalid.
+- **400 Bad Request**: Возвращается, если тело запроса отсутствует или недействительно.
 
   ```json
   {
@@ -115,7 +115,7 @@ The `response` field contains the URL of the combined video file uploaded to clo
   }
   ```
 
-- **401 Unauthorized**: Returned when the `x-api-key` header is missing or invalid.
+- **401 Unauthorized**: Возвращается, когда заголовок `x-api-key` отсутствует или недействителен.
 
   ```json
   {
@@ -124,7 +124,7 @@ The `response` field contains the URL of the combined video file uploaded to clo
   }
   ```
 
-- **429 Too Many Requests**: Returned when the maximum queue length is reached.
+- **429 Too Many Requests**: Возвращается при достижении максимальной длины очереди.
 
   ```json
   {
@@ -139,7 +139,7 @@ The `response` field contains the URL of the combined video file uploaded to clo
   }
   ```
 
-- **500 Internal Server Error**: Returned when an unexpected error occurs during the video concatenation process.
+- **500 Internal Server Error**: Возвращается при возникновении непредвиденной ошибки во время процесса объединения видео.
 
   ```json
   {
@@ -148,33 +148,33 @@ The `response` field contains the URL of the combined video file uploaded to clo
   }
   ```
 
-## 5. Error Handling
+## 5. Обработка ошибок
 
-The endpoint handles the following common errors:
+Эндпоинт обрабатывает следующие распространенные ошибки:
 
-- **Missing or invalid request body**: If the request body is missing or does not conform to the expected JSON schema, a 400 Bad Request error is returned.
-- **Missing or invalid API key**: If the `x-api-key` header is missing or invalid, a 401 Unauthorized error is returned.
-- **Queue length exceeded**: If the maximum queue length is reached (determined by the `MAX_QUEUE_LENGTH` environment variable), a 429 Too Many Requests error is returned.
-- **Unexpected errors during video concatenation**: If an unexpected error occurs during the video concatenation process, a 500 Internal Server Error is returned with the error message.
+- **Отсутствующее или недействительное тело запроса**: Если тело запроса отсутствует или не соответствует ожидаемой схеме JSON, возвращается ошибка 400 Bad Request.
+- **Отсутствующий или недействительный ключ API**: Если заголовок `x-api-key` отсутствует или недействителен, возвращается ошибка 401 Unauthorized.
+- **Превышена длина очереди**: Если достигнута максимальная длина очереди (определяется переменной окружения `MAX_QUEUE_LENGTH`), возвращается ошибка 429 Too Many Requests.
+- **Непредвиденные ошибки во время объединения видео**: Если во время процесса объединения видео возникает непредвиденная ошибка, возвращается ошибка 500 Internal Server Error с сообщением об ошибке.
 
-The main application context (`app.py`) also includes error handling for the task queue. If the queue length exceeds the `MAX_QUEUE_LENGTH` limit, the request is rejected with a 429 Too Many Requests error.
+Контекст основного приложения (`app.py`) также включает обработку ошибок для очереди задач. Если длина очереди превышает предел `MAX_QUEUE_LENGTH`, запрос отклоняется с ошибкой 429 Too Many Requests.
 
-## 6. Usage Notes
+## 6. Примечания по использованию
 
-- The video files to be concatenated must be accessible via the provided URLs.
-- The order of the video files in the `video_urls` array determines the order in which they will be concatenated.
-- If the `webhook_url` parameter is provided, the response will be sent as a webhook to the specified URL.
-- The `id` parameter can be used to identify the request in the response.
+- Видеофайлы для объединения должны быть доступны по предоставленным URL-адресам.
+- Порядок видеофайлов в массиве `video_urls` определяет порядок, в котором они будут объединены.
+- Если указан параметр `webhook_url`, ответ будет отправлен в виде вебхука на указанный URL-адрес.
+- Параметр `id` можно использовать для идентификации запроса в ответе.
 
-## 7. Common Issues
+## 7. Общие проблемы
 
-- Providing invalid or inaccessible video URLs.
-- Exceeding the maximum queue length, which can lead to requests being rejected with a 429 Too Many Requests error.
-- Encountering unexpected errors during the video concatenation process, which can result in a 500 Internal Server Error.
+- Предоставление недействительных или недоступных URL-адресов видео.
+- Превышение максимальной длины очереди, что может привести к отклонению запросов с ошибкой 429 Too Many Requests.
+- Возникновение непредвиденных ошибок во время процесса объединения видео, что может привести к ошибке 500 Internal Server Error.
 
-## 8. Best Practices
+## 8. Лучшие практики
 
-- Validate the video URLs before sending the request to ensure they are accessible and in the correct format.
-- Monitor the queue length and adjust the `MAX_QUEUE_LENGTH` value accordingly to prevent requests from being rejected due to a full queue.
-- Implement retry mechanisms for handling temporary errors or failures during the video concatenation process.
-- Provide meaningful and descriptive `id` values to easily identify requests in the response.
+- Проверяйте URL-адреса видео перед отправкой запроса, чтобы убедиться, что они доступны и находятся в правильном формате.
+- Мониторьте длину очереди и соответствующим образом корректируйте значение `MAX_QUEUE_LENGTH`, чтобы предотвратить отклонение запросов из-за переполнения очереди.
+- Реализуйте механизмы повторных попыток для обработки временных ошибок или сбоев во время процесса объединения видео.
+- Предоставляйте значимые и описательные значения `id`, чтобы легко идентифицировать запросы в ответе.

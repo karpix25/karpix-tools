@@ -1,41 +1,39 @@
-# Job Status Endpoint Documentation
+# Документация API эндпоинта статуса задачи
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/toolkit/job/status` endpoint is part of the Toolkit API and is used to retrieve the status of a specific job. It fits into the overall API structure as a utility endpoint for monitoring and managing jobs submitted to the various media processing endpoints.
+Эндпоинт `/v1/toolkit/job/status` используется для получения статуса конкретной задачи. Он служит утилитой для мониторинга и управления задачами, отправленными на различные эндпоинты обработки медиа.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
-**URL Path:** `/v1/toolkit/job/status`
-**HTTP Method:** `POST`
+**Путь URL:** `/v1/toolkit/job/status`
+**Метод HTTP:** `POST`
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key` (required): The API key for authentication.
+- `x-api-key` (обязательно): Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body must be a JSON object with the following parameter:
+Тело запроса должно быть объектом JSON с параметром:
 
-- `job_id` (string, required): The unique identifier of the job for which the status is requested.
+- `job_id` (строка, обязательно): Уникальный идентификатор задачи, статус которой запрашивается.
 
-The `validate_payload` directive in the routes file enforces the following JSON schema for the request body:
+Схема JSON для тела запроса:
 
 ```python
 {
     "type": "object",
     "properties": {
-        "job_id": {
-            "type": "string"
-        }
+        "job_id": { "type": "string" }
     },
     "required": ["job_id"],
 }
 ```
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -51,91 +49,54 @@ curl -X POST \
      http://your-api-endpoint/v1/toolkit/job/status
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The success response will contain the job status file content directly, as shown in the example response from `app.py`:
+Ответ содержит детали состояния задачи («done», «processing» и т.д.) и результат (если задача завершена):
 
 ```json
 {
     "endpoint": "/v1/toolkit/job/status",
     "code": 200,
-    "id": null,
     "job_id": "e6d7f3c0-9c9f-4b8a-b7c3-f0e3c9f6b9d7",
     "response": {
         "job_status": "done",
-        "job_id": "e6d7f3c0-9c9f-4b8a-b7c3-f0e3c9f6b9d7",
-        "queue_id": 140368864456064,
-        "process_id": 123456,
         "response": {
             "endpoint": "/v1/media/transcribe",
             "code": 200,
-            "id": "transcribe_job_123",
-            "job_id": "e6d7f3c0-9c9f-4b8a-b7c3-f0e3c9f6b9d7",
-            "response": "Transcription completed successfully.",
             "message": "success",
-            "pid": 123456,
-            "queue_id": 140368864456064,
-            "run_time": 5.234,
-            "queue_time": 1.123,
-            "total_time": 6.357,
-            "queue_length": 0,
-            "build_number": "1.0.0"
+            ...
         }
     },
-    "message": "success",
-    "pid": 123456,
-    "queue_id": 140368864456064,
-    "run_time": 0.001,
-    "queue_time": 0.0,
-    "total_time": 0.001,
-    "queue_length": 0,
-    "build_number": "1.0.0"
+    ...
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-- **404 Not Found**: If the job with the provided `job_id` is not found, the response will be:
+- **404 Not Found**: Задача с указанным `job_id` не найдена.
+- **500 Internal Server Error**: Ошибка при попытке получить статус.
 
-```json
-{
-    "error": "Job not found",
-    "job_id": "e6d7f3c0-9c9f-4b8a-b7c3-f0e3c9f6b9d7"
-}
-```
+## 5. Обработка ошибок
 
-- **500 Internal Server Error**: If an unexpected error occurs while retrieving the job status, the response will be:
+- **Отсутствующие параметры**: Возвращается 400 Bad Request.
+- **Задача не найдена**: Возвращается 404 Not Found.
+- **Лимит очереди**: Контекст приложения может вернуть 429 Too Many Requests при перегрузке.
 
-```json
-{
-    "error": "Failed to retrieve job status: <error_message>",
-    "code": 500
-}
-```
+## 6. Примечания по использованию
 
-## 5. Error Handling
+- Требуется валидный ключ API.
+- `job_id` должен быть валидной строкой UUID.
+- Этот эндпоинт только возвращает статус, он не инициирует новую обработку.
 
-- **Missing or Invalid Parameters**: If the `job_id` parameter is missing or invalid, the request will be rejected with a 400 Bad Request error.
-- **Job Not Found**: If the job with the provided `job_id` is not found, a 404 Not Found error will be returned.
-- **Unexpected Errors**: Any unexpected errors that occur during the retrieval of the job status will result in a 500 Internal Server Error response.
+## 7. Общие проблемы
 
-The main application context (`app.py`) includes error handling for queue overflow situations, where a 429 Too Many Requests error is returned if the maximum queue length is reached.
+- Использование несуществующего `job_id`.
+- Попытка получить статус задачи, которая уже была удалена из системы (если время хранения истекло).
 
-## 6. Usage Notes
+## 8. Лучшие практики
 
-- Ensure that you have a valid API key for authentication.
-- The `job_id` parameter must be a valid UUID string representing an existing job.
-- This endpoint does not perform any media processing; it only retrieves the status of a previously submitted job.
-
-## 7. Common Issues
-
-- Providing an invalid or non-existent `job_id`.
-- Attempting to retrieve the status of a job that has already been processed and removed from the system.
-
-## 8. Best Practices
-
-- Use this endpoint to monitor the progress of long-running jobs or to check the status of completed jobs.
-- Implement proper error handling in your client application to handle different error scenarios, such as job not found or unexpected errors.
-- Consider rate-limiting or implementing a queue system on the client side to avoid overwhelming the API with too many requests.
+- Используйте этот эндпоинт для мониторинга длительных задач.
+- Реализуйте в клиенте обработку ошибок (например, на случай, если задача еще не появилась в базе).
+- Не делайте запросы слишком часто (используйте разумный интервал опроса).

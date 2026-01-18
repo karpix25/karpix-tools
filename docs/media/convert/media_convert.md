@@ -1,35 +1,35 @@
-# Media Convert Endpoint Documentation
+# Документация эндпоинта для конвертации медиа
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/media/convert` endpoint is part of the Flask API application and is responsible for converting media files (audio or video) from one format to another. This endpoint fits into the overall API structure as a part of the `v1` blueprint, which contains various media-related functionalities.
+Эндпоинт `/v1/media/convert` является частью API-приложения Flask и отвечает за конвертацию медиафайлов (аудио или видео) из одного формата в другой. Этот эндпоинт входит в общую структуру API как часть blueprint `v1`, который содержит различные функциональные возможности, связанные с медиа.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
-**URL Path:** `/v1/media/convert`
-**HTTP Method:** `POST`
+**Путь URL:** `/v1/media/convert`
+**Метод HTTP:** `POST`
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key` (required): The API key for authentication.
+- `x-api-key` (обязательно): Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body must be a JSON object with the following properties:
+Тело запроса должно быть объектом JSON со следующими свойствами:
 
-- `media_url` (required, string): The URL of the media file to be converted.
-- `format` (required, string): The desired output format for the converted media file.
-- `video_codec` (optional, string): The video codec to be used for the conversion. Default is `libx264`.
-- `video_preset` (optional, string): The video preset to be used for the conversion. Default is `medium`.
-- `video_crf` (optional, number): The Constant Rate Factor (CRF) value for video encoding. Must be between 0 and 51. Default is 23.
-- `audio_codec` (optional, string): The audio codec to be used for the conversion. Default is `aac`.
-- `audio_bitrate` (optional, string): The audio bitrate to be used for the conversion. Default is `128k`.
-- `webhook_url` (optional, string): The URL to receive a webhook notification upon completion of the conversion process.
-- `id` (optional, string): An optional identifier for the conversion request.
+- `media_url` (обязательно, строка): URL-адрес медиафайла для конвертации.
+- `format` (обязательно, строка): Желаемый выходной формат для конвертированного медиафайла.
+- `video_codec` (необязательно, строка): Видеокодек, используемый для конвертации. По умолчанию `libx264`.
+- `video_preset` (необязательно, строка): Пресет видео, используемый для конвертации. По умолчанию `medium`.
+- `video_crf` (необязательно, число): Значение Constant Rate Factor (CRF) для кодирования видео. Должно быть от 0 до 51. По умолчанию 23.
+- `audio_codec` (необязательно, строка): Аудиокодек, используемый для конвертации. По умолчанию `aac`.
+- `audio_bitrate` (необязательно, строка): Битрейт аудио, используемый для конвертации. По умолчанию `128k`.
+- `webhook_url` (необязательно, строка): URL-адрес для получения уведомления вехуком по завершении процесса конвертации.
+- `id` (необязательно, строка): Необязательный идентификатор для запроса конвертации.
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -63,11 +63,11 @@ curl -X POST \
   }'
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The success response will be a JSON object containing the URL of the converted media file uploaded to cloud storage, the endpoint path, and a status code of 200.
+Успешный ответ будет объектом JSON, содержащим URL-адрес конвертированного медиафайла, загруженного в облачное хранилище, путь к эндпоинту и код состояния 200.
 
 ```json
 {
@@ -86,13 +86,13 @@ The success response will be a JSON object containing the URL of the converted m
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-- **400 Bad Request**: Returned when the request payload is missing or invalid.
-- **401 Unauthorized**: Returned when the `x-api-key` header is missing or invalid.
-- **500 Internal Server Error**: Returned when an unexpected error occurs during the conversion process.
+- **400 Bad Request**: Возвращается, когда тело запроса отсутствует или недействительно.
+- **401 Unauthorized**: Возвращается, когда заголовок `x-api-key` отсутствует или недействителен.
+- **500 Internal Server Error**: Возвращается при возникновении непредвиденной ошибки во время процесса конвертации.
 
-Example error response:
+Пример ответа с ошибкой:
 
 ```json
 {
@@ -107,32 +107,32 @@ Example error response:
 }
 ```
 
-## 5. Error Handling
+## 5. Обработка ошибок
 
-The endpoint uses the `validate_payload` decorator to validate the request payload against a JSON schema. If the payload is missing or invalid, a 400 Bad Request error is returned.
+Эндпоинт использует декоратор `validate_payload` для валидации тела запроса по JSON-схеме. Если данные отсутствуют или недействительны, возвращается ошибка 400 Bad Request.
 
-The `authenticate` decorator is used to ensure that the request includes a valid `x-api-key` header. If the header is missing or invalid, a 401 Unauthorized error is returned.
+Декоратор `authenticate` используется для проверки наличия валидного заголовка `x-api-key`. Если заголовок отсутствует или недействителен, возвращается ошибка 401 Unauthorized.
 
-If an unexpected error occurs during the conversion process, a 500 Internal Server Error is returned, and the error is logged.
+При возникновении непредвиденной ошибки во время процесса конвертации возвращается ошибка 500 Internal Server Error, а подробности логируются.
 
-## 6. Usage Notes
+## 6. Примечания по использованию
 
-- The `media_url` parameter must be a valid URL pointing to the media file to be converted.
-- The `format` parameter must be a valid media format supported by the conversion process.
-- The optional parameters (`video_codec`, `video_preset`, `video_crf`, `audio_codec`, `audio_bitrate`) allow you to customize the conversion settings.
-- If the `webhook_url` parameter is provided, a webhook notification will be sent to the specified URL upon completion of the conversion process.
-- The `id` parameter is optional and can be used to identify the conversion request.
+- Параметр `media_url` должен быть действительным URL-адресом, указывающим на медиафайл для конвертации.
+- Параметр `format` должен быть допустимым медиаформатом, поддерживаемым процессом конвертации.
+- Опциональные параметры (`video_codec`, `video_preset`, `video_crf`, `audio_codec`, `audio_bitrate`) позволяют настроить параметры конвертации.
+- Если указан `webhook_url`, уведомление вехуком будет отправлено на этот адрес по завершении конвертации.
+- Параметр `id` является необязательным и может использоваться для идентификации запроса.
 
-## 7. Common Issues
+## 7. Общие проблемы
 
-- Providing an invalid or inaccessible `media_url`.
-- Specifying an unsupported `format`.
-- Providing invalid values for the optional parameters (e.g., `video_crf` outside the valid range).
+- Предоставление недействительного или недоступного `media_url`.
+- Указание неподдерживаемого формата `format`.
+- Предоставление недействительных значений для опциональных параметров (например, `video_crf` вне допустимого диапазона).
 
-## 8. Best Practices
+## 8. Лучшие практики
 
-- Always validate the input parameters on the client-side before sending the request.
-- Use the `id` parameter to track and identify conversion requests.
-- Provide a `webhook_url` to receive notifications about the conversion process completion.
-- Monitor the API logs for any errors or issues during the conversion process.
-- Consider implementing rate limiting or queue management to handle high volumes of requests.
+- Всегда проверяйте входные параметры на стороне клиента перед отправкой запроса.
+- Используйте параметр `id` для отслеживания и идентификации запросов на конвертацию.
+- Указывайте `webhook_url` для получения уведомлений о завершении процесса конвертации.
+- Мониторьте логи API на наличие ошибок или проблем во время процесса конвертации.
+- Рассмотрите возможность внедрения ограничений частоты запросов (rate limiting) или управления очередью при больших объемах запросов.

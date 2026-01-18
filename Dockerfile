@@ -211,6 +211,8 @@ RUN echo '#!/bin/bash\n\
     gunicorn --bind 0.0.0.0:8080 \
     --workers ${GUNICORN_WORKERS:-2} \
     --timeout ${GUNICORN_TIMEOUT:-300} \
+    --max-requests ${GUNICORN_MAX_REQUESTS:-100} \
+    --max-requests-jitter ${GUNICORN_MAX_REQUESTS_JITTER:-10} \
     --worker-class sync \
     --keep-alive 80 \
     --config gunicorn.conf.py \

@@ -1,68 +1,68 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Этот файл содержит руководства для Claude Code (claude.ai/code) при работе с кодом в этом репозитории.
 
-## Overview
+## Обзор
 
-No-Code Architects Toolkit API is a Flask-based media processing API that handles audio/video conversion, transcription, translation, captioning, and cloud storage integration. It supports deployment on Docker, Google Cloud Platform, and Digital Ocean.
+No-Code Architects Toolkit API — это API для обработки медиа на базе Flask, который выполняет конвертацию аудио/видео, транскрибацию, перевод, наложение субтитров и интеграцию с облачными хранилищами. Поддерживает развертывание в Docker, Google Cloud Platform и Digital Ocean.
 
-## Architecture
+## Архитектура
 
-### Core Components
+### Основные компоненты
 
-- **[app.py](app.py)** - Main Flask application with queue-based task processing
-  - Creates task queue for async job processing
-  - Provides `queue_task` decorator for route handlers
-  - Supports GCP Cloud Run Jobs for long-running tasks
-  - Auto-registers blueprints from `routes/` directory
+- **[app.py](app.py)** — основное приложение Flask с обработкой задач через очередь.
+  - Создает очередь задач для асинхронной обработки.
+  - Предоставляет декоратор `queue_task` для обработчиков маршрутов.
+  - Поддерживает GCP Cloud Run Jobs для длительных задач.
+  - Автоматически регистрирует blueprints из директории `routes/`.
 
-- **[app_utils.py](app_utils.py)** - Core utilities
-  - `validate_payload()` - JSON schema validation decorator
-  - `queue_task_wrapper()` - Wraps routes for queue processing
-  - `discover_and_register_blueprints()` - Auto-discovers and registers Flask blueprints
-  - `log_job_status()` - Logs job status to LOCAL_STORAGE_PATH/jobs
+- **[app_utils.py](app_utils.py)** — основные утилиты.
+  - `validate_payload()` — декоратор для валидации JSON-схем.
+  - `queue_task_wrapper()` — оборачивает маршруты для обработки в очереди.
+  - `discover_and_register_blueprints()` — автопоиск и регистрация Flask blueprints.
+  - `log_job_status()` — логирует статус задачи в LOCAL_STORAGE_PATH/jobs.
 
-- **[config.py](config.py)** - Environment configuration
-  - Validates required environment variables per storage provider
-  - Configures API_KEY, storage paths, and cloud credentials
+- **[config.py](config.py)** — конфигурация окружения.
+  - Валидирует переменные окружения для каждого провайдера хранилища.
+  - Настраивает API_KEY, пути хранения и учетные данные облака.
 
-### Request Flow
+### Поток обработки запроса
 
-1. Request hits route in `routes/v1/{category}/{action}.py`
-2. `@authenticate` decorator validates X-API-Key header
-3. `@validate_payload()` validates JSON against schema
-4. `@queue_task_wrapper()` determines processing path:
-   - **No webhook_url**: Execute synchronously, return immediately
-   - **With webhook_url**: Queue task, return 202, send webhook when done
-   - **GCP_JOB_NAME set + webhook_url**: Trigger Cloud Run Job, return 202
-   - **CLOUD_RUN_JOB env set**: Execute synchronously in job context
+1. Запрос попадает на маршрут в `routes/v1/{category}/{action}.py`.
+2. Декоратор `@authenticate` проверяет заголовок X-API-Key.
+3. `@validate_payload()` проверяет JSON на соответствие схеме.
+4. `@queue_task_wrapper()` определяет путь обработки:
+   - **Нет webhook_url**: Выполняется синхронно, возвращает результат сразу.
+   - **Есть webhook_url**: Задача ставится в очередь, возвращается 202, вебхук отправляется по завершении.
+   - **GCP_JOB_NAME + webhook_url**: Запускается Cloud Run Job, возвращается 202.
+   - **CLOUD_RUN_JOB (env)**: Выполняется синхронно в контексте задачи.
 
-5. Route calls service function in `services/v1/{category}/{action}.py`
-6. Service processes media, uploads to cloud storage, returns result
-7. Route returns tuple: `(response_data, endpoint_string, status_code)`
+5. Маршрут вызывает функцию сервиса в `services/v1/{category}/{action}.py`.
+6. Сервис обрабатывает медиа, загружает в облако и возвращает результат.
+7. Маршрут возвращает кортеж: `(response_data, endpoint_string, status_code)`.
 
-### Job Processing Modes
+### Режимы обработки задач
 
-**In-Process Queue** (Default)
-- Single queue per worker process
-- Background thread processes tasks sequentially
-- MAX_QUEUE_LENGTH env var limits queue size (0 = unlimited)
+**Внутренняя очередь процесса** (По умолчанию)
+- Одна очередь на рабочий процесс (worker).
+- Фоновый поток обрабатывает задачи последовательно.
+- `MAX_QUEUE_LENGTH` ограничивает размер очереди (0 = безлимитно).
 
-**GCP Cloud Run Jobs** (Optional)
-- Set GCP_JOB_NAME and GCP_JOB_LOCATION to enable
-- Requires webhook_url in request payload
-- Triggers Cloud Run Job with endpoint and payload as env vars
-- Job executes task independently and sends webhook
+**GCP Cloud Run Jobs** (Опционально)
+- Установите `GCP_JOB_NAME` и `GCP_JOB_LOCATION` для включения.
+- Требуется `webhook_url` в теле запроса.
+- Запускает Cloud Run Job с эндпоинтом и данными в переменных окружения.
+- Задача выполняется независимо и отправляет вебхук.
 
-**Synchronous** (No Queue)
-- Used when webhook_url not provided
-- Request blocks until processing completes
+**Синхронно** (Без очереди)
+- Используется, если `webhook_url` не предоставлен.
+- Запрос блокируется до завершения обработки.
 
-### Dynamic Route Registration
+### Динамическая регистрация маршрутов
 
-Routes are auto-discovered from `routes/` directory. No manual registration needed in [app.py](app.py).
+Маршруты обнаруживаются автоматически в папке `routes/`. Ручная регистрация в [app.py](app.py) не требуется.
 
-**Blueprint Convention:**
+**Соглашение о Blueprint:**
 ```python
 from flask import Blueprint
 from app_utils import validate_payload, queue_task_wrapper
@@ -75,174 +75,101 @@ v1_category_action_bp = Blueprint('v1_category_action', __name__)
 @validate_payload(schema_dict)
 @queue_task_wrapper(bypass_queue=False)
 def action_handler(job_id, data):
-    """
-    Args:
-        job_id (str): Unique job identifier
-        data (dict): Request JSON payload
-
-    Returns:
-        Tuple[dict, str, int]: (response_data, endpoint_path, status_code)
-    """
-    # Implementation
+    # Реализация
     return result, "/v1/category/action", 200
 ```
 
-See [docs/adding_routes.md](docs/adding_routes.md) for detailed guide.
+См. [docs/adding_routes.md](docs/adding_routes.md) для подробного руководства.
 
-### Cloud Storage Abstraction
+### Абстракция облачного хранилища
 
-[services/cloud_storage.py](services/cloud_storage.py) provides unified interface:
-- Detects provider from environment variables
-- GCP: Requires GCP_SA_CREDENTIALS, GCP_BUCKET_NAME
-- S3: Requires S3_ENDPOINT_URL, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET_NAME, S3_REGION
-- Digital Ocean: Extracts bucket/region from endpoint URL if not provided
+[services/cloud_storage.py](services/cloud_storage.py) предоставляет единый интерфейс:
+- Определяет провайдера по переменным окружения.
+- GCP: Требует `GCP_SA_CREDENTIALS`, `GCP_BUCKET_NAME`.
+- S3: Требует `S3_ENDPOINT_URL`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET_NAME`, `S3_REGION`.
+- Digital Ocean: Извлекает бакет/регион из URL эндпоинта, если не указаны.
 
-Service functions call `upload_file(local_path)` which returns public URL.
+Функции сервиса вызывают `upload_file(local_path)`, которая возвращает публичный URL.
 
-## Development Commands
+## Команды для разработки
 
-### Local Development
+### Локальная разработка
 
 ```bash
-# Install dependencies
+# Установка зависимостей
 pip install -r requirements.txt
 
-# Run development server (default port 8080)
+# Запуск сервера разработки (порт 8080)
 python app.py
 
-# Or use gunicorn
+# Или через gunicorn
 gunicorn --config gunicorn.conf.py app:app
 ```
 
 ### Docker
 
 ```bash
-# Build image
+# Сборка образа
 docker build -t no-code-architects-toolkit .
 
-# Run container
+# Запуск контейнера
 docker run -p 8080:8080 \
   -e API_KEY=your_key \
   -e S3_ENDPOINT_URL=... \
-  -e S3_ACCESS_KEY=... \
-  -e S3_SECRET_KEY=... \
-  -e S3_BUCKET_NAME=... \
-  -e S3_REGION=... \
   no-code-architects-toolkit
-
-# Or use docker-compose
-docker-compose up
 ```
 
-### Testing
+### Тестирование
 
-The API uses Postman for testing. Template available at: https://bit.ly/49Gkh61
+API использует Postman. Шаблон доступен по адресу: https://bit.ly/49Gkh61
 
-Test endpoint:
+Тестовый эндпоинт:
 ```bash
 curl -X POST http://localhost:8080/v1/toolkit/test \
   -H "X-API-Key: your_key"
 ```
 
-## Environment Variables
+## Переменные окружения
 
-**Required:**
-- `API_KEY` - Authentication key for all endpoints
+**Обязательные:**
+- `API_KEY` — ключ аутентификации.
 
-**Storage (choose one):**
+**Хранилище (выберите одно):**
 
 GCP Storage:
-- `GCP_SA_CREDENTIALS` - Service account JSON credentials
-- `GCP_BUCKET_NAME` - GCS bucket name
+- `GCP_SA_CREDENTIALS` — JSON-ключ сервисного аккаунта.
+- `GCP_BUCKET_NAME` — имя бакета GCS.
 
-S3-Compatible:
-- `S3_ENDPOINT_URL` - S3 endpoint URL
-- `S3_ACCESS_KEY` - Access key
-- `S3_SECRET_KEY` - Secret key
-- `S3_BUCKET_NAME` - Bucket name
-- `S3_REGION` - Region (or "None" for some providers)
+S3-совместимые:
+- `S3_ENDPOINT_URL`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET_NAME`, `S3_REGION`.
 
-**Optional:**
-- `LOCAL_STORAGE_PATH` - Temp file storage (default: /tmp)
-- `MAX_QUEUE_LENGTH` - Max concurrent tasks (default: 0/unlimited)
-- `GUNICORN_WORKERS` - Worker processes (default: CPU cores + 1)
-- `GUNICORN_TIMEOUT` - Worker timeout seconds (default: 30)
-- `GCP_JOB_NAME` - Cloud Run Job name for offloading
-- `GCP_JOB_LOCATION` - Cloud Run Job region (default: us-central1)
+**Опциональные:**
+- `LOCAL_STORAGE_PATH` — временное хранилище (по умолчанию: /tmp).
+- `MAX_QUEUE_LENGTH` — макс. кол-во задач (0 = без ограничений).
+- `GUNICORN_WORKERS`, `GUNICORN_TIMEOUT`.
+- `GCP_JOB_NAME`, `GCP_JOB_LOCATION`.
 
-## Key Patterns
+## Ключевые паттерны
 
-### Route Structure
-- Routes in `routes/v1/{category}/{action}.py`
-- Services in `services/v1/{category}/{action}.py`
-- Documentation in `docs/{category}/{action}.md`
+- Маршруты: `routes/v1/{category}/{action}.py`.
+- Сервисы: `services/v1/{category}/{action}.py`.
+- Документация: `docs/{category}/{action}.md`.
+- Формат возврата: `(response_dict, endpoint_string, http_status_code)`.
+- Статусы задач: `queued`, `running`, `done`, `failed`, `submitted`.
 
-### Return Format
-All routes return: `(response_dict, endpoint_string, http_status_code)`
+## Добавление новых функций
 
-The `queue_task` decorator wraps this into full response with metadata:
-```json
-{
-  "code": 200,
-  "id": "user_provided_id",
-  "job_id": "uuid",
-  "response": {...},
-  "message": "success",
-  "run_time": 1.234,
-  "queue_time": 0.567,
-  "total_time": 1.801,
-  "pid": 12345,
-  "queue_id": 140123456789,
-  "queue_length": 3,
-  "build_number": "204"
-}
-```
+1. Создайте сервис в `services/v1/{category}/{action}.py`.
+2. Создайте маршрут в `routes/v1/{category}/{action}.py`.
+3. Добавьте JSON-схему валидации.
+4. Добавьте документацию в `docs/{category}/{action}.md`.
+5. Обновите [README.md](README.md).
 
-### Job Status Tracking
-Job status files written to `{LOCAL_STORAGE_PATH}/jobs/{job_id}.json`
+См. [docs/adding_routes.md](docs/adding_routes.md) для полного руководства.
 
-Status values: `queued`, `running`, `done`, `failed`, `submitted`
+## Руководства по развертыванию
 
-### Webhook Pattern
-When `webhook_url` provided in request:
-- Task queued, immediate 202 response
-- On completion, POST result to webhook_url
-- Used to avoid timeouts on long-running tasks
-
-### FFmpeg Usage
-Most media processing uses FFmpeg via [ffmpeg-python](https://pypi.org/project/ffmpeg-python/) library.
-
-Example from services:
-```python
-import ffmpeg
-
-input_stream = ffmpeg.input(video_path)
-output = ffmpeg.output(input_stream, output_path, **options)
-ffmpeg.run(output, overwrite_output=True)
-```
-
-## Adding New Features
-
-1. Create service function in `services/v1/{category}/{action}.py`
-2. Create route in `routes/v1/{category}/{action}.py` following blueprint pattern
-3. Add JSON schema validation to route
-4. Service should download inputs, process, upload to cloud storage
-5. Return `(result_dict, endpoint_string, status_code)` from route
-6. Add documentation to `docs/{category}/{action}.md`
-7. Update [README.md](README.md) with new endpoint
-
-See [docs/adding_routes.md](docs/adding_routes.md) for full guide.
-
-## Contributing
-
-- Submit PRs to `build` branch (not main)
-- Use auto-versioning: builds auto-increment via GitHub Actions
-- Update README.md when adding new endpoints
-- Follow GPL-2.0 license (see [LICENSE](LICENSE))
-
-## Deployment Guides
-
-- Digital Ocean App Platform: [docs/cloud-installation/do.md](docs/cloud-installation/do.md)
-- Google Cloud Run: [docs/cloud-installation/gcp.md](docs/cloud-installation/gcp.md)
-- General Docker: [docker-compose.md](docker-compose.md)
-- Local with MinIO + n8n: [docker-compose.local.minio.n8n.md](docker-compose.local.minio.n8n.md)
+- Digital Ocean: [docs/cloud-installation/do.md](docs/cloud-installation/do.md).
+- Google Cloud Run: [docs/cloud-installation/gcp.md](docs/cloud-installation/gcp.md).
+- Общий Docker: [docker-compose.md](docker-compose.md).
+- Локально с MinIO + n8n: [docker-compose.local.minio.n8n.md](docker-compose.local.minio.n8n.md).

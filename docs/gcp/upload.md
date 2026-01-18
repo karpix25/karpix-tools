@@ -1,27 +1,27 @@
-# GCP Upload API
+# API загрузки в GCP
 
-This endpoint allows you to stream a file from a remote URL directly to Google Cloud Storage without using local disk space.
+Этот эндпоинт позволяет передавать файл с удаленного URL напрямую в Google Cloud Storage (GCS) без использования локального дискового пространства.
 
-## Endpoint
+## Конечная точка (Endpoint)
 
 `POST /v1/gcp/upload`
 
-## Authentication
+## Аутентификация
 
-This endpoint requires an API key to be provided in the `X-API-Key` header.
+Для этого эндпоинта требуется ключ API, передаваемый в заголовке `X-API-Key`.
 
-## Request Body
+## Тело запроса
 
-The request body should be a JSON object with the following properties:
+Тело запроса должно быть объектом JSON со следующими свойствами:
 
-| Property | Type | Required | Description |
+| Свойство | Тип | Обязательно | Описание |
 |----------|------|----------|-------------|
-| file_url | string | Yes | The URL of the file to upload to GCS |
-| filename | string | No | Custom filename to use for the uploaded file. If not provided, the original filename will be used |
-| public | boolean | No | Whether to make the file publicly accessible. Defaults to `false` |
-| download_headers | object | No | Optional headers to include in the download request for authentication |
+| file_url | string | Да | URL файла для загрузки в GCS |
+| filename | string | Нет | Пользовательское имя файла. Если не указано, будет использовано оригинальное имя. |
+| public | boolean | Нет | Сделать ли файл общедоступным. По умолчанию `false`. |
+| download_headers | object | Нет | Дополнительные заголовки для запроса скачивания (например, для авторизации). |
 
-Example request body:
+### Пример тела запроса:
 ```json
 {
   "file_url": "https://example.com/path/to/file.mp4",
@@ -33,19 +33,19 @@ Example request body:
 }
 ```
 
-## Response
+## Ответ
 
-The response will be a JSON object with the following properties:
+Ответ будет объектом JSON со следующими свойствами:
 
-| Property | Type | Description |
+| Свойство | Тип | Описание |
 |----------|------|-------------|
-| file_url | string | The public URL of the uploaded file |
-| filename | string | The filename of the uploaded file |
-| bucket | string | The name of the GCS bucket where the file was uploaded |
-| public | boolean | Whether the file is publicly accessible |
-| content_type | string | The detected content type of the uploaded file |
+| file_url | string | Публичный URL загруженного файла |
+| filename | string | Имя загруженного файла |
+| bucket | string | Имя бакета GCS, куда был загружен файл |
+| public | boolean | Доступен ли файл публично |
+| content_type | string | Определенный тип содержимого файла |
 
-Example response:
+### Пример ответа:
 ```json
 {
   "file_url": "https://storage.googleapis.com/bucket-name/custom-name.mp4",
@@ -56,17 +56,17 @@ Example response:
 }
 ```
 
-## Error Handling
+## Обработка ошибок
 
-If an error occurs, the response will include an error message with an appropriate HTTP status code.
+При возникновении ошибки ответ будет содержать сообщение об ошибке с соответствующим кодом состояния HTTP.
 
-## Technical Details
+## Технические детали
 
-This endpoint uses the Google Cloud Storage API to stream the file directly from the source URL to GCS without saving it locally. This allows for efficient transfer of large files with minimal memory usage.
+Этот эндпоинт использует Google Cloud Storage API для потоковой передачи файла напрямую из исходного URL в GCS без сохранения его на локальный диск. Это позволяет эффективно передавать большие файлы с минимальным использованием памяти.
 
-The implementation:
-1. Streams the file from the source URL
-2. Detects the content type from the response headers
-3. Uploads the file directly to GCS using the streaming upload API
+Реализация:
+1. Потоковое чтение файла с исходного URL.
+2. Определение типа содержимого (content type) из заголовков ответа.
+3. Загрузка файла напрямую в GCS с использованием API потоковой загрузки.
 
-This approach supports efficient handling of large files and maintains the original content type of the uploaded file. 
+Этот подход поддерживает эффективную работу с большими файлами и сохраняет оригинальный тип содержимого файла.

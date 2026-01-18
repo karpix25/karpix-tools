@@ -1,32 +1,32 @@
-# Audio Concatenation API Endpoint Documentation
+# Документация API эндпоинта объединения аудио
 
-## Overview
+## Обзор
 
-The `/v1/audio/concatenate` endpoint provides functionality to combine multiple audio files into a single audio file. This endpoint is part of the v1 API structure and is registered in the main application through the `v1_audio_concatenate_bp` Blueprint. It leverages the application's queuing system to handle asynchronous processing, which is particularly useful for potentially time-consuming audio processing operations.
+Эндпоинт `/v1/audio/concatenate` предоставляет функциональность для объединения нескольких аудиофайлов в один. Этот эндпоинт является частью структуры API v1 и зарегистрирован в основном приложении через Blueprint `v1_audio_concatenate_bp`. Он использует систему очередей приложения для асинхронной обработки, что особенно полезно для потенциально длительных операций обработки аудио.
 
-## Endpoint
+## Эндпоинт (Endpoint)
 
 - **URL**: `/v1/audio/concatenate`
-- **Method**: `POST`
+- **Метод**: `POST`
 
-## Request
+## Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key`: Required. Your API authentication key.
+- `x-api-key`: Обязательно. Ваш ключ авторизации API.
 
-### Body Parameters
+### Параметры тела запроса
 
-| Parameter | Type | Required | Description |
+| Параметр | Тип | Обязательно | Описание |
 |-----------|------|----------|-------------|
-| `audio_urls` | Array | Yes | An array of objects, each containing an `audio_url` property pointing to an audio file to be concatenated. Must contain at least one item. |
-| `webhook_url` | String | No | A URL to receive a callback notification when processing is complete. If provided, the request will be processed asynchronously. |
-| `id` | String | No | A custom identifier for tracking the request. |
+| `audio_urls` | Массив | Да | Массив объектов, каждый из которых содержит свойство `audio_url`, указывающее на аудиофайл для объединения. Должен содержать как минимум один элемент. |
+| `webhook_url` | Строка | Нет | URL для получения обратного вызова (когда обработка завершена). Если указан, запрос обрабатывается асинхронно. |
+| `id` | Строка | Нет | Пользовательский идентификатор для отслеживания запроса. |
 
-Each object in the `audio_urls` array must have:
-- `audio_url`: String (URI format). The URL of an audio file to be concatenated.
+Каждый объект в массипе `audio_urls` должен иметь:
+- `audio_url`: Строка (формат URI). URL аудиофайла для объединения.
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -40,7 +40,7 @@ Each object in the `audio_urls` array must have:
 }
 ```
 
-### Example cURL Command
+### Пример команды cURL
 
 ```bash
 curl -X POST \
@@ -57,11 +57,11 @@ curl -X POST \
   }'
 ```
 
-## Response
+## Ответ
 
-### Synchronous Response (No webhook_url provided)
+### Синхронный ответ (webhook_url не указан)
 
-If no `webhook_url` is provided, the request will be processed synchronously and return:
+Если `webhook_url` не указан, запрос обрабатывается синхронно и возвращает:
 
 ```json
 {
@@ -80,9 +80,9 @@ If no `webhook_url` is provided, the request will be processed synchronously and
 }
 ```
 
-### Asynchronous Response (webhook_url provided)
+### Асинхронный ответ (webhook_url указан)
 
-If a `webhook_url` is provided, the request will be queued for processing and immediately return:
+Если указан `webhook_url`, запрос ставится в очередь и немедленно возвращает:
 
 ```json
 {
@@ -98,7 +98,7 @@ If a `webhook_url` is provided, the request will be queued for processing and im
 }
 ```
 
-When processing is complete, a webhook will be sent to the provided URL with the following payload:
+По завершении обработки на указанный URL будет отправлен вебхук со следующими данными:
 
 ```json
 {
@@ -118,9 +118,9 @@ When processing is complete, a webhook will be sent to the provided URL with the
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-#### Invalid Request Format (400 Bad Request)
+#### Некорректный запрос (400 Bad Request)
 
 ```json
 {
@@ -135,7 +135,7 @@ When processing is complete, a webhook will be sent to the provided URL with the
 }
 ```
 
-#### Authentication Error (401 Unauthorized)
+#### Ошибка аутентификации (401 Unauthorized)
 
 ```json
 {
@@ -145,7 +145,7 @@ When processing is complete, a webhook will be sent to the provided URL with the
 }
 ```
 
-#### Queue Limit Reached (429 Too Many Requests)
+#### Очередь заполнена (429 Too Many Requests)
 
 ```json
 {
@@ -160,7 +160,7 @@ When processing is complete, a webhook will be sent to the provided URL with the
 }
 ```
 
-#### Processing Error (500 Internal Server Error)
+#### Ошибка обработки (500 Internal Server Error)
 
 ```json
 {
@@ -175,33 +175,33 @@ When processing is complete, a webhook will be sent to the provided URL with the
 }
 ```
 
-## Error Handling
+## Обработка ошибок
 
-- **Missing Required Parameters**: If `audio_urls` is missing or empty, a 400 Bad Request response will be returned.
-- **Invalid URL Format**: If any `audio_url` is not a valid URI, a 400 Bad Request response will be returned.
-- **Authentication Failure**: If the API key is invalid or missing, a 401 Unauthorized response will be returned.
-- **Queue Limit**: If the queue is full (when MAX_QUEUE_LENGTH is set), a 429 Too Many Requests response will be returned.
-- **Processing Errors**: Any errors during audio download, processing, or upload will result in a 500 Internal Server Error response with details in the message field.
+- **Отсутствие обязательных параметров**: Если `audio_urls` отсутствует или пуст, возвращается 400 Bad Request.
+- **Некорректный формат URL**: Если любой `audio_url` не является валидным URI, возвращается 400 Bad Request.
+- **Ошибка аутентификации**: При неверном или отсутствующем ключе API возвращается 401 Unauthorized.
+- **Лимит очереди**: Если очередь заполнена (когда установлен MAX_QUEUE_LENGTH), возвращается 429 Too Many Requests.
+- **Ошибки обработки**: Любые ошибки при загрузке, обработке или выгрузке аудио приведут к 500 Internal Server Error с деталями в поле message.
 
-## Usage Notes
+## Примечания по использованию
 
-1. **Asynchronous Processing**: For long audio files, it's recommended to use the `webhook_url` parameter to process the request asynchronously.
-2. **File Formats**: The service supports common audio formats. The output will be in a standard format (typically MP3).
-3. **File Size**: There may be limits on the size of audio files that can be processed. Very large files might cause timeouts or failures.
-4. **Queue Behavior**: If the system is under heavy load, requests with `webhook_url` will be queued. The MAX_QUEUE_LENGTH environment variable controls the maximum queue size.
+1. **Асинхронная обработка**: Для длинных аудиофайлов рекомендуется использовать `webhook_url`.
+2. **Форматы файлов**: Сервис поддерживает популярные аудиоформаты. Результат обычно в формате MP3.
+3. **Размер файлов**: Могут существовать ограничения на размер обрабатываемых файлов. Очень большие файлы могут вызвать таймауты.
+4. **Поведение очереди**: При высокой нагрузке запросы с вебхуками ставятся в очередь. Лимит контролируется переменной `MAX_QUEUE_LENGTH`.
 
-## Common Issues
+## Общие проблемы
 
-1. **Inaccessible Audio URLs**: Ensure all audio URLs are publicly accessible. Private or authentication-required URLs will cause failures.
-2. **Incompatible Audio Formats**: Some exotic audio formats might not be supported. Stick to common formats like MP3, WAV, or AAC.
-3. **Webhook Failures**: If your webhook endpoint is unavailable when the processing completes, you might not receive the completion notification.
-4. **Timeout Issues**: Very large audio files might cause timeouts during download or processing.
+1. **Недоступные URL аудио**: Убедитесь, что все ссылки доступны публично. Приватные ссылки вызовут ошибки.
+2. **Несовместимые форматы**: Избегайте редких форматов. Используйте MP3, WAV или AAC.
+3. **Ошибки вебхуков**: Если ваш эндпоинт недоступен, вы не получите уведомление о завершении.
+4. **Проблемы с таймаутом**: Очень большие файлы могут не успеть обработаться.
 
-## Best Practices
+## Лучшие практики
 
-1. **Use Webhooks for Large Files**: Always use the webhook approach for large audio files or when concatenating many files.
-2. **Include an ID**: Always include a custom `id` parameter to help track your requests, especially in webhook responses.
-3. **Error Handling**: Implement robust error handling in your client application to handle various HTTP status codes.
-4. **Webhook Reliability**: Ensure your webhook endpoint is reliable and can handle retries if necessary.
-5. **File Preparation**: Pre-process your audio files to ensure they have compatible formats, sample rates, and channel configurations for best results.
-6. **Queue Monitoring**: Monitor the `queue_length` in responses to understand system load and adjust your request patterns if needed.
+1. **Используйте вебхуки для больших файлов** или при объединении множества фрагментов.
+2. **Всегда передавайте ID** для упрощения отслеживания запросов.
+3. **Обработка ошибок**: Реализуйте в своем приложении обработку различных HTTP-кодов.
+4. **Надежность вебхука**: Убедитесь, что ваш сервер может принимать уведомления и обрабатывать повторы при необходимости.
+5. **Подготовка файлов**: Для лучших результатов заранее приводите файлы к совместимым форматам и частоте дискретизации.
+6. **Мониторинг очереди**: Следите за значением `queue_length` для понимания нагрузки на систему.

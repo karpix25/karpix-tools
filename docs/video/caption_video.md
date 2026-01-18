@@ -1,41 +1,40 @@
-# Video Captioning Endpoint (v1)
+# Эндпоинт для добавления субтитров к видео (v1)
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/video/caption` endpoint is part of the Video API and is responsible for adding captions to a video file. It accepts a video URL, caption text, and various styling options for the captions. The endpoint utilizes the `process_captioning_v1` service to generate a captioned video file, which is then uploaded to cloud storage, and the cloud URL is returned in the response.
+Эндпоинт `/v1/video/caption` является частью Video API и отвечает за добавление субтитров к видеофайлу. Он принимает URL-адрес видео, текст субтитров и различные параметры стилизации. Эндпоинт использует сервис `process_captioning_v1` для генерации видеофайла с субтитрами, который затем загружается в облачное хранилище, а URL-адрес в облаке возвращается в ответе.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
 **URL:** `/v1/video/caption`
-**Method:** `POST`
+**Метод:** `POST`
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key`: Required. The API key for authentication.
+- `x-api-key`: Обязательно. Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body must be a JSON object with the following properties:
+Тело запроса должно быть объектом JSON со следующими свойствами:
 
-- `video_url` (string, required): The URL of the video file to be captioned.
-- `captions` (string, optional): Can be one of the following:
-  - Raw caption text to be added to the video
-  - URL to an SRT subtitle file
-  - URL to an ASS subtitle file
-  - If not provided, the system will automatically generate captions by transcribing the audio from the video
-- `settings` (object, optional): An object containing various styling options for the captions. See the schema below for available options.
-- `replace` (array, optional): An array of objects with `find` and `replace` properties, specifying text replacements to be made in the captions.
-- `webhook_url` (string, optional): A URL to receive a webhook notification when the captioning process is complete.
-- `id` (string, optional): An identifier for the request.
-- `language` (string, optional): The language code for the captions (e.g., "en", "fr"). Defaults to "auto".
-- `exclude_time_ranges` (array, optional): List of time ranges to skip when adding captions. Each item must be an object with:
-  - `start`: (string, required) The start time of the excluded range, as a string timecode in `hh:mm:ss.ms` format (e.g., `00:01:23.456`).
-  - `end`: (string, required) The end time, as a string timecode in `hh:mm:ss.ms` format, which must be strictly greater than `start`.
-  If either value is not a valid timecode string, or if `end` is not greater than `start`, the request will return an error.
+- `video_url` (string, обязательно): URL-адрес видеофайла, к которому нужно добавить субтитры.
+- `captions` (string, необязательно): Может быть одним из следующих вариантов:
+  - Необработанный текст субтитров для добавления в видео
+  - URL-адрес файла субтитров в формате SRT
+  - URL-адрес файла субтитров в формате ASS
+  - Если параметр не указан, система автоматически сгенерирует субтитры путем транскрибации аудио из видео
+- `settings` (object, необязательно): Объект, содержащий различные параметры стилизации субтитров. Доступные параметры см. в схеме ниже.
+- `replace` (array, необязательно): Массив объектов со свойствами `find` и `replace`, определяющими текстовые замены в субтитрах.
+- `webhook_url` (string, необязательно): URL-адрес для получения уведомления вехуком по завершении процесса добавления субтитров.
+- `id` (string, необязательно): Идентификатор запроса.
+- `language` (string, необязательно): Код языка для субтитров (например, "ru", "en"). По умолчанию "auto".
+- `exclude_time_ranges` (array, необязательно): Список временных диапазонов, которые следует пропустить при добавлении субтитров. Каждый элемент должен быть объектом с полями:
+  - `start`: (string, обязательно) Время начала исключаемого диапазона в формате `чч:мм:сс.мс` (например, `00:01:23.456`).
+  - `end`: (string, обязательно) Время окончания в формате `чч:мм:сс.мс`, которое должно быть строго больше, чем `start`.
 
-#### Settings Schema
+#### Схема настроек (Settings Schema)
 
 ```json
 {
@@ -69,11 +68,11 @@ The request body must be a JSON object with the following properties:
         "style": {
             "type": "string",
             "enum": [
-                "classic",     // Regular captioning with all text displayed at once
-                "karaoke",     // Highlights words sequentially in a karaoke style
-                "highlight",   // Shows full text but highlights the current word
-                "underline",   // Shows full text but underlines the current word
-                "word_by_word" // Shows one word at a time
+                "classic",     // Обычные субтитры, весь текст отображается сразу
+                "karaoke",     // Подсветка слов последовательно в стиле караоке
+                "highlight",   // Показывает полный текст, но подсвечивает текущее слово
+                "underline",   // Показывает полный текст, но подчеркивает текущее слово
+                "word_by_word" // Показывает по одному слову за раз
             ]
         },
         "outline_width": {"type": "integer"},
@@ -85,21 +84,21 @@ The request body must be a JSON object with the following properties:
 }
 ```
 
-### Example Requests
+### Примеры запросов
 
-#### Example 1: Basic Automatic Captioning
+#### Пример 1: Базовое автоматическое добавление субтитров
 ```json
 {
     "video_url": "https://example.com/video.mp4"
 }
 ```
-This minimal request will automatically transcribe the video and add white captions at the bottom center.
+Этот минимальный запрос автоматически транскрибирует видео и добавит белые субтитры внизу по центру.
 
-#### Example 2: Custom Text with Styling
+#### Пример 2: Пользовательский текст со стилизацией
 ```json
 {
     "video_url": "https://example.com/video.mp4",
-    "captions": "This is a sample caption text.",
+    "captions": "Это пример текста субтитров.",
     "settings": {
         "style": "classic",
         "line_color": "#FFFFFF",
@@ -113,7 +112,7 @@ This minimal request will automatically transcribe the video and add white capti
 }
 ```
 
-#### Example 3: Karaoke-Style Captions with Advanced Options
+#### Пример 3: Субтитры в стиле караоке с расширенными параметрами
 ```json
 {
     "video_url": "https://example.com/video.mp4",
@@ -135,21 +134,21 @@ This minimal request will automatically transcribe the video and add white capti
     },
     "replace": [
         {
-            "find": "um",
+            "find": "эм",
             "replace": ""
         },
         {
-            "find": "like",
+            "find": "как бы",
             "replace": ""
         }
     ],
     "webhook_url": "https://example.com/webhook",
     "id": "request-123",
-    "language": "en"
+    "language": "ru"
 }
 ```
 
-#### Example 4: Using an External Subtitle File
+#### Пример 4: Использование внешнего файла субтитров
 ```json
 {
     "video_url": "https://example.com/video.mp4",
@@ -164,7 +163,7 @@ This minimal request will automatically transcribe the video and add white capti
 }
 ```
 
-#### Example 5: Excluding Time Ranges from Captioning
+#### Пример 5: Исключение временных диапазонов
 ```json
 {
     "video_url": "https://example.com/video.mp4",
@@ -204,7 +203,7 @@ curl -X POST \
         },
         "replace": [
             {
-                "find": "um",
+                "find": "эм",
                 "replace": ""
             }
         ],
@@ -213,26 +212,26 @@ curl -X POST \
     https://your-api-endpoint.com/v1/video/caption
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The response will be a JSON object with the following properties:
+Ответ будет представлять собой объект JSON со следующими свойствами:
 
-- `code` (integer): The HTTP status code (200 for success).
-- `id` (string): The request identifier, if provided in the request.
-- `job_id` (string): A unique identifier for the job.
-- `response` (string): The cloud URL of the captioned video file.
-- `message` (string): A success message.
-- `pid` (integer): The process ID of the worker that processed the request.
-- `queue_id` (integer): The ID of the queue used for processing the request.
-- `run_time` (float): The time taken to process the request (in seconds).
-- `queue_time` (float): The time the request spent in the queue (in seconds).
-- `total_time` (float): The total time taken for the request (in seconds).
-- `queue_length` (integer): The current length of the processing queue.
-- `build_number` (string): The build number of the application.
+- `code` (integer): Код состояния HTTP (200 при успехе).
+- `id` (string): Идентификатор запроса, если он был предоставлен в запросе.
+- `job_id` (string): Уникальный идентификатор задачи.
+- `response` (string): URL-адрес видеофайла с субтитрами в облачном хранилище.
+- `message` (string): Сообщение об успехе.
+- `pid` (integer): ID процесса воркера, обработавшего запрос.
+- `queue_id` (integer): ID очереди, использованной для обработки запроса.
+- `run_time` (float): Время, затраченное на обработку запроса (в секундах).
+- `queue_time` (float): Время, проведенное запросом в очереди (в секундах).
+- `total_time` (float): Общее время выполнения запроса (в секундах).
+- `queue_length` (integer): Текущая длина очереди обработки.
+- `build_number` (string): Номер сборки приложения.
 
-Example:
+Пример:
 
 ```json
 {
@@ -251,11 +250,11 @@ Example:
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-#### Missing or Invalid Parameters
+#### Пропущенные или недействительные параметры
 
-**Status Code:** 400 Bad Request
+**Код состояния:** 400 Bad Request
 
 ```json
 {
@@ -270,9 +269,9 @@ Example:
 }
 ```
 
-#### Font Error
+#### Ошибка шрифта
 
-**Status Code:** 400 Bad Request
+**Код состояния:** 400 Bad Request
 
 ```json
 {
@@ -286,9 +285,9 @@ Example:
 }
 ```
 
-#### Internal Server Error
+#### Внутренняя ошибка сервера
 
-**Status Code:** 500 Internal Server Error
+**Код состояния:** 500 Internal Server Error
 
 ```json
 {
@@ -303,52 +302,52 @@ Example:
 }
 ```
 
-## 5. Error Handling
+## 5. Обработка ошибок
 
-The endpoint handles the following common errors:
+Эндпоинт обрабатывает следующие распространенные ошибки:
 
-- **Missing or Invalid Parameters**: If any required parameters are missing or invalid, a 400 Bad Request error is returned with a descriptive error message.
-- **Font Error**: If the requested font is not available, a 400 Bad Request error is returned with a list of available fonts.
-- **Internal Server Error**: If an unexpected error occurs during the captioning process, a 500 Internal Server Error is returned with an error message.
+- **Пропущенные или недействительные параметры**: Если какие-либо обязательные параметры отсутствуют или недействительны, возвращается ошибка 400 Bad Request с описанием ошибки.
+- **Ошибка шрифта**: Если запрашиваемый шрифт недоступен, возвращается ошибка 400 Bad Request со списком доступных шрифтов.
+- **Внутренняя ошибка сервера**: Если во время процесса добавления субтитров происходит непредвиденная ошибка, возвращается ошибка 500 Internal Server Error.
 
-Additionally, the main application context (`app.py`) includes error handling for queue overload. If the maximum queue length (`MAX_QUEUE_LENGTH`) is set and the queue size reaches that limit, a 429 Too Many Requests error is returned with a descriptive message.
+Кроме того, основной контекст приложения (`app.py`) включает обработку перегрузки очереди. Если установлена максимальная длина очереди (`MAX_QUEUE_LENGTH`) и размер очереди достигает этого предела, возвращается ошибка 429 Too Many Requests.
 
-## 6. Usage Notes
+## 6. Примечания по использованию
 
-- The `video_url` parameter must be a valid URL pointing to a video file (MP4, MOV, etc.).
-- The `captions` parameter is optional and can be used in multiple ways:
-  - If not provided, the endpoint will automatically transcribe the audio and generate captions
-  - If provided as plain text, the text will be used as captions for the entire video
-  - If provided as a URL to an SRT or ASS subtitle file, the system will use that file for captioning
-  - For SRT files, only 'classic' style is supported
-  - For ASS files, the original styling will be preserved
-- The `settings` parameter allows for customization of the caption appearance and behavior:
-  - `style` determines how captions are displayed, with options including:
-    - `classic`: Regular captioning with all text displayed at once
-    - `karaoke`: Highlights words sequentially in a karaoke style as they're spoken
-    - `highlight`: Shows the full caption text but highlights each word as it's spoken
-    - `underline`: Shows the full caption text but underlines each word as it's spoken
-    - `word_by_word`: Shows only one word at a time
-  - `position` can be used to place captions in one of nine positions on the screen
-  - `alignment` determines text alignment within the position (left, center, right)
-  - `font_family` can be any available system font
-  - Color options can be set using hex codes (e.g., "#FFFFFF" for white)
-- The `replace` parameter can be used to perform text replacements in the captions (useful for correcting words or censoring content).
-- The `webhook_url` parameter is optional and can be used to receive a notification when the captioning process is complete.
-- The `id` parameter is optional and can be used to identify the request in webhook responses.
-- The `language` parameter is optional and can be used to specify the language of the captions for transcription. If not provided, the language will be automatically detected.
-- The `exclude_time_ranges` parameter can be used to specify time ranges to be excluded from captioning.
+- Параметр `video_url` должен быть действительным URL-адресом, указывающим на видеофайл (MP4, MOV и т.д.).
+- Параметр `captions` является необязательным и может использоваться несколькими способами:
+  - Если не указан, эндпоинт автоматически транскрибирует аудио и генерирует субтитры.
+  - Если указан как обычный текст, этот текст будет использоваться в качестве субтитров для всего видео.
+  - Если указан как URL-адрес файла субтитров SRT или ASS, система будет использовать этот файл.
+  - Для файлов SRT поддерживается только стиль 'classic'.
+  - Для файлов ASS сохраняется оригинальное форматирование.
+- Параметр `settings` позволяет настраивать внешний вид и поведение субтитров:
+  - `style` определяет способ отображения субтитров, варианты включают:
+    - `classic`: Обычные субтитры, весь текст отображается сразу.
+    - `karaoke`: Подсветка слов последовательно по мере их произнесения.
+    - `highlight`: Показывает полный текст, но подсвечивает каждое слово по мере произнесения.
+    - `underline`: Показывает полный текст, но подчеркивает каждое слово по мере произнесения.
+    - `word_by_word`: Показывает только одно слово за раз.
+  - `position` можно использовать для размещения субтитров в одной из девяти позиций на экране.
+  - `alignment` определяет выравнивание текста внутри позиции (left, center, right).
+  - `font_family` может быть любым доступным системным шрифтом.
+  - Параметры цвета можно задавать с помощью hex-кодов (например, "#FFFFFF" для белого цвета).
+- Параметр `replace` можно использовать для замены текста в субтитрах (полезно для исправления слов или цензуры).
+- Параметр `webhook_url` является необязательным и может использоваться для получения уведомления по завершении процесса.
+- Параметр `id` является необязательным и может использоваться для идентификации запроса в ответах вебхуков.
+- Параметр `language` является необязательным и может использоваться для указания языка субтитров для транскрибации. Если не указан, язык будет определен автоматически.
+- Параметр `exclude_time_ranges` можно использовать для указания временных диапазонов, которые следует исключить из субтитров.
 
-## 7. Common Issues
+## 7. Общие проблемы
 
-- Providing an invalid or inaccessible `video_url`.
-- Requesting an unavailable font in the `settings` object.
-- Exceeding the maximum queue length, resulting in a 429 Too Many Requests error.
+- Предоставление недействительного или недоступного `video_url`.
+- Запрос недоступного шрифта в объекте `settings`.
+- Превышение максимальной длины очереди, что приводит к ошибке 429 Too Many Requests.
 
-## 8. Best Practices
+## 8. Лучшие практики
 
-- Validate the `video_url` parameter before sending the request to ensure it points to a valid and accessible video file.
-- Use the `webhook_url` parameter to receive notifications about the captioning process, rather than polling the API for updates.
-- Provide descriptive and meaningful `id` values to easily identify requests in logs and responses.
-- Use the `replace` parameter judiciously to avoid unintended text replacements in the captions.
-- Consider caching the captioned video files for frequently requested videos to improve performance and reduce processing time.
+- Проверяйте параметр `video_url` перед отправкой запроса, чтобы убедиться, что он указывает на действительный и доступный видеофайл.
+- Используйте параметр `webhook_url` для получения уведомлений о процессе, вместо того чтобы постоянно опрашивать API для получения обновлений.
+- Указывайте описательные и значимые значения `id`, чтобы легко идентифицировать запросы в логах и ответах.
+- Используйте параметр `replace` осмотрительно, чтобы избежать непреднамеренных замен текста в субтитрах.
+- Рассмотрите возможность кэширования файлов видео с субтитрами для часто запрашиваемых видео, чтобы повысить производительность и сократить время обработки.

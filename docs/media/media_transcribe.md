@@ -1,69 +1,69 @@
-# Media Transcription API Documentation
+# Документация API для транскрибации медиа
 
-## Overview
-The Media Transcription endpoint is part of the v1 API suite, providing audio/video transcription and translation capabilities. This endpoint leverages a queuing system for handling long-running transcription tasks, with webhook support for asynchronous processing. It's integrated into the main Flask application as a Blueprint and supports both direct response and cloud storage options for the transcription results.
+## Обзор
+Эндпоинт транскрибации медиа является частью набора API версии v1 и предоставляет возможности транскрибации и перевода аудио/видео контента. Этот эндпоинт использует систему очередей для обработки длительных задач транскрибации с поддержкой вебхуков для асинхронной обработки. Онт интегрирован в основное приложение Flask как Blueprint и поддерживает как прямой ответ, так и опции облачного хранения результатов транскрибации.
 
-## Endpoint
+## Эндпоинт (Endpoint)
 - **URL**: `/v1/media/transcribe`
-- **Method**: `POST`
+- **Метод**: `POST`
 - **Blueprint**: `v1_media_transcribe_bp`
 
-## Request
+## Запрос
 
-### Headers
-- `x-api-key`: Required. Authentication key for API access.
-- `Content-Type`: Required. Must be `application/json`.
+### Заголовки (Headers)
+- `x-api-key`: Обязательно. Ключ аутентификации для доступа к API.
+- `Content-Type`: Обязательно. Должно быть `application/json`.
 
-### Body Parameters
+### Параметры тела запроса
 
-#### Required Parameters
+#### Обязательные параметры
 - `media_url` (string)
-  - Format: URI
-  - Description: URL of the media file to be transcribed
+  - Формат: URI
+  - Описание: URL-адрес медиафайла для транскрибации
 
-#### Optional Parameters
+#### Необязательные параметры
 - `task` (string)
-  - Allowed values: `"transcribe"`, `"translate"`
-  - Default: `"transcribe"`
-  - Description: Specifies whether to transcribe or translate the audio
-  
+  - Допустимые значения: `"transcribe"`, `"translate"`
+  - По умолчанию: `"transcribe"`
+  - Описание: Указывает, нужно ли транскрибировать (в текст) или переводить аудио
+
 - `include_text` (boolean)
-  - Default: `true`
-  - Description: Include plain text transcription in the response
+  - По умолчанию: `true`
+  - Описание: Включить обычный текст транскрибации в ответ
   
 - `include_srt` (boolean)
-  - Default: `false`
-  - Description: Include SRT format subtitles in the response
+  - По умолчанию: `false`
+  - Описание: Включить субтитры в формате SRT в ответ
   
 - `include_segments` (boolean)
-  - Default: `false`
-  - Description: Include timestamped segments in the response
+  - По умолчанию: `false`
+  - Описание: Включить сегменты с временными метками в ответ
   
 - `word_timestamps` (boolean)
-  - Default: `false`
-  - Description: Include timestamps for individual words
+  - По умолчанию: `false`
+  - Описание: Включить временные метки для отдельных слов
   
 - `response_type` (string)
-  - Allowed values: `"direct"`, `"cloud"`
-  - Default: `"direct"`
-  - Description: Whether to return results directly or as cloud storage URLs
+  - Допустимые значения: `"direct"`, `"cloud"`
+  - По умолчанию: `"direct"`
+  - Описание: Возвращать результаты напрямую или в виде ссылок на облачное хранилище
   
 - `language` (string)
-  - Optional
-  - Description: Source language code for transcription
+  - Необязательно
+  - Описание: Код исходного языка для транскрибации
   
 - `webhook_url` (string)
-  - Format: URI
-  - Description: URL to receive the transcription results asynchronously
+  - Формат: URI
+  - Описание: URL-адрес для асинхронного получения результатов транскрибации
   
 - `id` (string)
-  - Description: Custom identifier for the transcription job
+  - Описание: Пользовательский идентификатор для задачи транскрибации
 
 - `max_words_per_line` (integer)
-  - Minimum: 1
-  - Description: Controls the maximum number of words per line in the SRT file. When specified, each segment's text will be split into multiple lines with at most the specified number of words per line.
+  - Минимум: 1
+  - Описание: Контролирует максимальное количество слов в строке SRT-файла. Если указано, текст каждого сегмента будет разбит на несколько строк, содержащих не более указанного количества слов в строке.
 
-### Example Request
+### Пример запроса
 
 ```bash
 curl -X POST "https://api.example.com/v1/media/transcribe" \
@@ -82,10 +82,10 @@ curl -X POST "https://api.example.com/v1/media/transcribe" \
   }'
 ```
 
-## Response
+## Ответ
 
-### Immediate Response (202 Accepted)
-When a webhook URL is provided, the API returns an immediate acknowledgment:
+### Немедленный ответ (202 Accepted)
+При указании URL вебхука API немедленно подтверждает получение заказа:
 
 ```json
 {
@@ -101,8 +101,8 @@ When a webhook URL is provided, the API returns an immediate acknowledgment:
 }
 ```
 
-### Success Response (via Webhook)
-For direct response_type:
+### Успешный ответ (через вебхук)
+Для `response_type: direct`:
 
 ```json
 {
@@ -111,8 +111,8 @@ For direct response_type:
   "id": "custom-job-123",
   "job_id": "550e8400-e29b-41d4-a716-446655440000",
   "response": {
-    "text": "Transcribed text content...",
-    "srt": "SRT formatted content...",
+    "text": "Текст транскрибации...",
+    "srt": "Контент в формате SRT...",
     "segments": [...],
     "text_url": null,
     "srt_url": null,
@@ -129,7 +129,7 @@ For direct response_type:
 }
 ```
 
-For cloud response_type:
+Для `response_type: cloud`:
 
 ```json
 {
@@ -156,9 +156,9 @@ For cloud response_type:
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-#### Queue Full (429 Too Many Requests)
+#### Очередь заполнена (429 Too Many Requests)
 ```json
 {
   "code": 429,
@@ -172,7 +172,7 @@ For cloud response_type:
 }
 ```
 
-#### Server Error (500 Internal Server Error)
+#### Ошибка сервера (500 Internal Server Error)
 ```json
 {
   "endpoint": "/v1/transcribe/media",
@@ -180,7 +180,7 @@ For cloud response_type:
   "id": "custom-job-123",
   "job_id": "550e8400-e29b-41d4-a716-446655440000",
   "response": null,
-  "message": "Error message details",
+  "message": "Подробности сообщения об ошибке",
   "pid": 12345,
   "queue_id": 67890,
   "run_time": 0.123,
@@ -191,80 +191,80 @@ For cloud response_type:
 }
 ```
 
-## Error Handling
+## Обработка ошибок
 
-### Common Errors
-- **Invalid API Key**: 401 Unauthorized
-- **Invalid JSON Payload**: 400 Bad Request
-- **Missing Required Fields**: 400 Bad Request
-- **Invalid media_url**: 400 Bad Request
-- **Queue Full**: 429 Too Many Requests
-- **Processing Error**: 500 Internal Server Error
+### Частые ошибки
+- **Неверный API-ключ**: 401 Unauthorized
+- **Некорректный JSON в теле запроса**: 400 Bad Request
+- **Отсутствуют обязательные поля**: 400 Bad Request
+- **Некорректный media_url**: 400 Bad Request
+- **Очередь заполнена**: 429 Too Many Requests
+- **Ошибка обработки**: 500 Internal Server Error
 
-### Validation Errors
-The endpoint performs strict validation of the request payload using JSON Schema. Common validation errors include:
-- Invalid URI format for media_url or webhook_url
-- Invalid task value (must be "transcribe" or "translate")
-- Invalid response_type value (must be "direct" or "cloud")
-- Unknown properties in the request body
+### Ошибки валидации
+Эндпоинт выполняет строгую валидацию тела запроса с использованием JSON Schema. Частые ошибки валидации включают:
+- Некорректный формат URI для `media_url` или `webhook_url`
+- Недопустимое значение `task` (должно быть "transcribe" или "translate")
+- Недопустимое значение `response_type` (должно быть "direct" или "cloud")
+- Неизвестные свойства в теле запроса
 
-## Usage Notes
+## Примечания по использованию
 
-1. **Webhook Processing**
-   - When a webhook_url is provided, the request is processed asynchronously
-   - The API returns an immediate 202 response with a job_id
-   - Final results are sent to the webhook_url when processing completes
+1. **Обработка вебхуков**
+   - Если указан `webhook_url`, запрос обрабатывается асинхронно
+   - API немедленно возвращает ответ 202 с `job_id`
+   - Конечные результаты отправляются на `webhook_url` по завершении обработки
 
-2. **Queue Management**
-   - Requests with webhook_url are queued for processing
-   - MAX_QUEUE_LENGTH environment variable controls queue size
-   - Set MAX_QUEUE_LENGTH to 0 for unlimited queue size
+2. **Управление очередью**
+   - Запросы с `webhook_url` ставятся в очередь для обработки
+   - Переменная окружения `MAX_QUEUE_LENGTH` контролирует размер очереди
+   - Установите `MAX_QUEUE_LENGTH` в 0 для неограниченного размера очереди
 
-3. **File Management**
-   - For cloud response_type, temporary files are automatically cleaned up
-   - Results are uploaded to cloud storage before deletion
-   - URLs in the response provide access to the stored files
+3. **Управление файлами**
+   - При `response_type: cloud` временные файлы автоматически удаляются
+   - Результаты загружаются в облачное хранилище перед удалением
+   - Ссылки в ответе предоставляют доступ к сохраненным файлам
 
-4. **SRT Formatting**
-   - The `max_words_per_line` parameter allows control over the maximum number of words per line in the SRT file
-   - When specified, each segment's text will be split into multiple lines with at most the specified number of words per line
-   - This is useful for creating more readable subtitles with consistent line lengths
+4. **Форматирование SRT**
+   - Параметр `max_words_per_line` позволяет контролировать максимальное количество слов в строке в SRT-файле
+   - Если указано, текст каждого сегмента будет разбит на несколько строк, в каждой из которых будет не более указанного количества слов
+   - Это полезно для создания более читаемых субтитров с последовательной длиной строк
 
-## Common Issues
+## Общие проблемы
 
-1. **Media Access**
-   - Ensure media_url is publicly accessible
-   - Verify media file format is supported
-   - Check for media file corruption
+1. **Доступ к медиа**
+   - Убедитесь, что `media_url` общедоступен
+   - Проверьте, поддерживается ли формат медиафайла
+   - Проверьте медиафайл на наличие повреждений
 
-2. **Webhook Delivery**
-   - Ensure webhook_url is publicly accessible
-   - Implement webhook endpoint retry logic
-   - Monitor webhook endpoint availability
+2. **Доставка вебхуков**
+   - Убедитесь, что `webhook_url` общедоступен
+   - Реализуйте логику повторных попыток на эндпоинте вебхука
+   - Мониторьте доступность эндпоинта вебхука
 
-3. **Resource Usage**
-   - Large media files may take significant processing time
-   - Monitor queue length for production deployments
-   - Consider implementing request size limits
+3. **Использование ресурсов**
+   - Большие медиафайлы могут требовать значительного времени на обработку
+   - Мониторьте длину очереди в рабочих окружениях
+   - Рассмотрите возможность введения ограничений на размер запроса
 
-## Best Practices
+## Лучшие практики
 
-1. **Request Handling**
-   - Always provide a unique id for job tracking
-   - Implement webhook retry logic
-   - Store job_id for result correlation
+1. **Обработка запросов**
+   - Всегда указывайте уникальный `id` для отслеживания задачи
+   - Реализуйте логику повторных попыток для вебхуков
+   - Сохраняйте `job_id` для сопоставления результатов
 
-2. **Resource Management**
-   - Monitor queue length in production
-   - Implement appropriate timeout handling
-   - Use cloud response_type for large files
+2. **Управление ресурсами**
+   - Мониторьте длину очереди в рабочем окружении
+   - Реализуйте соответствующую обработку таймаутов
+   - Используйте `response_type: cloud` для больших файлов
 
-3. **Error Handling**
-   - Implement comprehensive webhook error handling
-   - Log job_id with all related operations
-   - Monitor processing times and error rates
+3. **Обработка ошибок**
+   - Реализуйте комплексную обработку ошибок вебхуков
+   - Логируйте `job_id` при всех связанных операциях
+   - Мониторьте время обработки и количество ошибок
 
-4. **Security**
-   - Use HTTPS for media_url and webhook_url
-   - Implement webhook authentication
-   - Validate media file types before processing
+4. **Безопасность**
+   - Используйте HTTPS для `media_url` и `webhook_url`
+   - Реализуйте аутентификацию вебхуков
+   - Проверяйте типы медиафайлов перед обработкой

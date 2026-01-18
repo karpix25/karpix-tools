@@ -1,158 +1,139 @@
-# Contributing to No-Code Architects Toolkit
+# Участие в разработке No-Code Architects Toolkit
 
-Thanks for your interest in contributing! ❤️
+Спасибо за ваш интерес к проекту! ❤️
 
-This project exists to help **non-technical creators build smarter systems** — so every contribution should align with these core principles:
+Этот проект создан, чтобы помочь **нетехническим создателям строить умные системы**, поэтому каждый вклад должен соответствовать основным принципам:
 
-✅ Simple
-✅ Useful
-✅ Low-maintenance
+✅ Просто
+✅ Полезно
+✅ Минимум обслуживания
 
-This repository is focused on new contributions and feature development. Please ensure all pull requests contain complete, debugged code that is ready for review. We do not accept submissions that require significant cleanup, completion work, or debugging by maintainers.
+Этот репозиторий ориентирован на новые функции и улучшения. Пожалуйста, убедитесь, что все pull-запросы содержат законченный, отлаженный код, готовый к проверке. Мы не принимаем работы, требующие значительной доработки, завершения или отладки со стороны мейнтейнеров.
 
-> If you like the project but don't know how to code, you can still support us in other ways:
+> Если вам нравится проект, но вы не умеете кодить, вы можете поддержать нас иначе:
 >
-> * ⭐ Star the project
-> * 📣 Share it on social media
-> * 🌲 Refer it to a friend or your community
-> * 💸 [Sponsor the project](#)
+> * ⭐ Поставьте звезду проекту
+> * 📣 Поделитесь в соцсетях
+> * 🌲 Расскажите друзьям или сообществу
+> * 💸 [Станьте спонсором](#)
 
-If you need help or have questions, check out the GitHub [discussions](https://github.com/stephengpope/no-code-architects-toolkit/discussions) or join the [community](https://www.skool.com/no-code-architects/about?ref=2f302c52a77541efa2dd5e8b27f3f8c9).
-
----
-
-## Table of Contents
-
-* [What We Accept](#what-we-accept-)
-* [What We Reject](#what-we-reject-)
-* [Feature Evaluation Framework](#feature-evaluation-framework)
-* [Technical Guidelines](#technical-guidelines)
-* [Contribution Types](#contribution-types)
-* [Branch Naming Conventions](#branch-naming-conventions)
-* [Final Thoughts](#final-thoughts-%EF%B8%8F)
+Если нужна помощь — заходите в GitHub [discussions](https://github.com/stephengpope/no-code-architects-toolkit/discussions) или присоединяйтесь к [сообществу](https://www.skool.com/no-code-architects/about?ref=2f302c52a77541efa2dd5e8b27f3f8c9).
 
 ---
 
-## What We Accept ✅
+## Оглавление
 
-* Solves **common no-code challenges**
-* **Reduces cost** or replaces paid APIs/tools
-* Requires minimal input (has defaults)
-* Is understandable by **non-technical users**
-* Works out-of-the-box, no setup required
-* One-time integrations — **no constant maintenance needed**
-* Uses **existing input/output naming conventions**
-* Follows our directory and structure conventions
-
----
-
-## What We Reject ❌
-
-* Features built for one person or edge-case
-* Inconsistent input/output field names
-* Requires polling, retries, or callback logic
-* Needs babysitting or breaks frequently
-* Lacks error handling or code comments
-* Includes unused code, requirements, or bloat
-* Adds huge packages that inflate Docker image size
-* Leaves us with more work to do
+* [Что мы принимаем](#что-мы-принимаем-)
+* [Что мы отклоняем](#что-мы-отклоняем-)
+* [Критерии оценки функций](#критерии-оценки-функций)
+* [Технические рекомендации](#технические-рекомендации)
+* [Типы вклада](#типы-вклада)
+* [Соглашения об именовании веток](#соглашения-об-именовании-веток)
+* [Заключение](#заключение-%EF%B8%8F)
 
 ---
 
-## Feature Evaluation Framework
+## Что мы принимаем ✅
 
-| Category              | Ask This...                                    | ✅ Accept if...                                 | ❌ Reject if...                             |
-| --------------------- | ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------ |
-| **Mission Fit**       | Does this reduce cost or unify tools?          | Replaces APIs, reduces costs or complexity     | Adds noise or solves narrow edge cases     |
-| **Input Familiarity** | Are inputs familiar (`file_url`, `text`, etc)? | Uses standard names/types already in use       | Introduces new terms for same ideas        |
-| **Input Clarity**     | Would a non-tech user know what to enter?      | Inputs like "Enter URL", "Choose format"       | Needs tech explanation or experimentation  |
-| **Output Usefulness** | Can this plug straight into Make/Zapier?       | Returns clean files, text, URLs                | Returns raw data or deep nested structures |
-| **Reliability**       | Will it just work?                             | API is stable, no retries, consistent behavior | Depends on flaky APIs or fragile setup     |
-| **Maintenance Cost**  | Will we have to maintain this?                 | One-and-done, doesn't change often             | Vendor changes often, breaks silently      |
-| **Value vs. Effort**  | Is it worth it?                                | High impact, frequently requested              | Niche, low ROI                             |
+* Решение **типовых no-code задач**.
+* **Снижение затрат** или замену платных API/инструментов.
+* Минимум входных данных (наличие значений по умолчанию).
+* Понятность для **нетехнических пользователей**.
+* Работа «из коробки», без сложной настройки.
+* Одноразовые интеграции — **без постоянного обслуживания**.
+* Использование **существующих соглашений имен** полей ввода/вывода.
+* Соответствие нашей структуре директорий.
 
 ---
 
-## Technical Guidelines
+## Что мы отклоняем ❌
 
-> These guidelines help maintain a clean and production-ready project.
+* Функции для одного человека или редких случаев.
+* Несогласованные имена полей (input/output).
+* Сложная логика с опросами (polling), повторами или колбэками.
+* Хрупкий код, который часто ломается.
+* Отсутствие обработки ошибок или комментариев.
+* Неиспользуемый код, зависимости или «раздувание» проекта.
+* Огромные пакеты, увеличивающие размер Docker-образа.
+* Задачи, оставляющие мейнтейнерам больше работы, чем было.
 
-### 🧠 Code Style
-
-* Use **clear, descriptive names** (e.g., `convertImageToText`, not `imgTxt`)
-* Comment your logic if it's not obvious
-* Handle errors — don't let code crash silently
-* Follow consistent formatting
-
-
-### 🧼 Clean Contributions
-
-* Don't change files unrelated to your feature
-* Don't leave behind unused requirements or code
-* Don't introduce huge dependencies (we check image size)
-* Use `git status` to review your working tree before you commit
 ---
 
-## Branch Naming Conventions
+## Критерии оценки функций
 
-All contributions should follow this process:
+| Категория | Спросите себя... | ✅ Принимаем, если... | ❌ Отклоняем, если... |
+| :--- | :--- | :--- | :--- |
+| **Соответствие миссии** | Снижает ли это стоимость или упрощает инструменты? | Заменяет API, снижает затраты или сложность | Просто создает шум или решает узкую задачу |
+| **Знакомые входы** | Знакомы ли входы (`file_url`, `text` и т.д.)? | Использует стандартные имена и типы | Вводит новые термины для старых идей |
+| **Понятность** | Поймет ли обычный юзер, что вводить? | Входы типа «Введите URL», «Выбор формата» | Требует тех. объяснений или экспериментов |
+| **Полезность выхода** | Можно ли сразу подключить к Make/Zapier? | Возвращает чистые файлы, текст, ссылки | Возвращает сырые данные или вложенные структуры |
+| **Надежность** | Будет ли это просто работать? | API стабилен, без повторов, предсказуем | Зависит от нестабильных API или настроек |
+| **Обслуживание** | Придется ли нам это поддерживать? | Сделал и забыл, редко меняется | Вендор часто меняет API и всё ломается |
 
-1. Fork the [main repository](https://github.com/stephengpope/no-code-architects-toolkit)
-2. Clone your fork:
+---
+
+## Технические рекомендации
+
+> Эти советы помогают поддерживать проект в чистоте и готовности к продакшену.
+
+### 🧠 СТИЛЬ КОДА
+
+* Используйте **понятные, описательные имена** (например, `convertImageToText`, а не `imgTxt`).
+* Комментируйте логику, если она не очевидна.
+* Обрабатывайте ошибки — не позволяйте коду падать молча.
+* Соблюдайте единообразие форматирования.
+
+### 🧼 Чистота вклада
+
+* Не меняйте файлы, не относящиеся к вашей функции.
+* Не оставляйте лишних зависимостей.
+* Не добавляйте огромные библиотеки (мы следим за весом образа).
+* Используйте `git status` перед коммитом.
+
+---
+
+## Соглашения об именовании веток
+
+Процесс работы:
+
+1. Сделайте форк [основного репозитория](https://github.com/stephengpope/no-code-architects-toolkit).
+2. Склонируйте его:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/no-code-architects-toolkit.git
-   cd no-code-architects-toolkit
+   git clone https://github.com/ВАШ_ЛОГИН/no-code-architects-toolkit.git
    ```
-3. Add the upstream repository:
+3. Добавьте основной репозиторий как `upstream`:
    ```bash
    git remote add upstream https://github.com/stephengpope/no-code-architects-toolkit.git
    ```
-4. Fetch and checkout the upstream build branch:
+4. Создайте ветку от `upstream/build`:
    ```bash
    git fetch upstream
-   git checkout -b your-feature-branch upstream/build
+   git checkout -b ваша-ветка-функции upstream/build
    ```
-5. Name your feature branch following these patterns:
-   * For bug fixes: `fix/descriptive-bug-name`
-   * For new features: `feature/descriptive-feature-name`
-   * For documentation: `docs/descriptive-change`
+5. Имя ветки должно следовать паттернам:
+   * Багфиксы: `fix/описание-бага`
+   * Функции: `feature/имя-функции`
+   * Документация: `docs/описание-изменений`
 
-Example:
-```bash
-# For a new feature
-git fetch upstream
-git checkout -b feature/pdf-to-text-converter upstream/build
-
-# For a bug fix
-git fetch upstream
-git checkout -b fix/webp-upload-crash upstream/build
-```
-
-6. After making your changes, push to your fork and create a pull request:
-   ```bash
-   git push origin your-feature-branch
-   ```
-   Then visit your fork on GitHub and create a pull request targeting the `build` branch of the main repository.
+6. Сделайте пуш в свой форк и создайте Pull Request в ветку `build` основного репозитория.
 
 ---
 
-## Contribution Types
+## Типы вклада
 
-| Type        | Good Example                                                           |
-| ----------- | ---------------------------------------------------------------------- |
-| 🐞 Bug Fix  | "Fixes crash when uploading WebP files"                                |
-| ⚡ Feature   | "Adds endpoint to replace an expensive api" |
-|   📚 Docs | "Improves deployment documentation (e.g., how to host on Netlify, AWS, Vercel, etc.)" |
-
+| Тип | Хороший пример |
+| :--- | :--- |
+| 🐞 Bug Fix | "Исправляет падение при загрузке WebP-файлов" |
+| ⚡ Feature | "Добавляет эндпоинт для замены дорогого API" |
+| 📚 Docs | "Улучшает документацию по деплою (Netlify, AWS и т.д.)" |
 
 ---
 
-## Final Thoughts 🧘‍♂️
+## Заключение 🧘‍♂️
 
-* If it's not ready, don't submit it.
-* Contributions should be helpful, obvious, and low-maintenance.
-* The goal: **make complex tasks simple for no-code users**.
+* Если код не готов — не отправляйте его.
+* Решения должны быть полезными, понятными и простыми в поддержке.
+* Цель: **сделать сложные задачи простыми для no-code пользователей**.
 
-We're excited to see your contributions! 🎉
-
-Let's build something useful, together.
+Мы ждем ваших идей и кода! 🎉
+Построим что-то полезное вместе.

@@ -1,30 +1,30 @@
-# Execute Python Code Endpoint
+# Эндпоинт выполнения Python кода
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/code/execute/python` endpoint allows users to execute Python code on the server. This endpoint is part of the version 1.0 API structure defined in `app.py`. It is designed to provide a secure and controlled environment for executing Python code, with features like input validation, output capturing, and timeout handling.
+Эндпоинт `/v1/code/execute/python` позволяет пользователям выполнять код Python на сервере. Этот эндпоинт является частью структуры API версии 1.0, определенной в `app.py`. Он разработан для обеспечения безопасной и контролируемой среды выполнения Python кода с такими функциями, как валидация входных данных, захват вывода и обработка таймаутов.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
-**URL Path:** `/v1/code/execute/python`
-**HTTP Method:** `POST`
+**Путь URL:** `/v1/code/execute/python`
+**Метод HTTP:** `POST`
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key` (required): The API key for authentication.
+- `x-api-key` (обязательно): Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body must be a JSON object with the following properties:
+Тело запроса должно быть объектом JSON со следующими свойствами:
 
-- `code` (string, required): The Python code to be executed.
-- `timeout` (integer, optional): The maximum execution time in seconds, between 1 and 300. Default is 30 seconds.
-- `webhook_url` (string, optional): The URL to receive the execution result via a webhook.
-- `id` (string, optional): A unique identifier for the request.
+- `code` (строка, обязательно): Код Python для выполнения.
+- `timeout` (целое число, необязательно): Максимальное время выполнения в секундах (от 1 до 300). По умолчанию 30 секунд.
+- `webhook_url` (строка, необязательно): URL для получения результата выполнения через вебхук.
+- `id` (строка, необязательно): Уникальный идентификатор запроса.
 
-The `validate_payload` directive in the routes file enforces the following JSON schema for the request body:
+Директива `validate_payload` в файле маршрутов применяет следующую JSON-схему:
 
 ```json
 {
@@ -40,9 +40,9 @@ The `validate_payload` directive in the routes file enforces the following JSON 
 }
 ```
 
-### Example Request
+### Пример запроса
 
-**Request Payload:**
+**Тело запроса:**
 
 ```json
 {
@@ -53,7 +53,7 @@ The `validate_payload` directive in the routes file enforces the following JSON 
 }
 ```
 
-**cURL Command:**
+**Команда cURL:**
 
 ```bash
 curl -X POST \
@@ -63,11 +63,11 @@ curl -X POST \
      http://your-api-endpoint/v1/code/execute/python
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The success response follows the general response format defined in `app.py`. Here's an example:
+Успешный ответ соответствует общему формату, определенному в `app.py`. Пример:
 
 ```json
 {
@@ -92,83 +92,41 @@ The success response follows the general response format defined in `app.py`. He
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-#### Missing or Invalid Parameters
+#### Отсутствующие или неверные параметры
+**Код состояния:** 400 Bad Request
 
-**Status Code:** 400 Bad Request
+#### Ошибка выполнения
+**Код состояния:** 400 Bad Request
+Содержит сообщение об ошибке из выполненного кода.
 
-```json
-{
-    "error": "Missing or invalid parameters",
-    "stdout": "",
-    "exit_code": 400
-}
-```
+#### Таймаут выполнения
+**Код состояния:** 408 Request Timeout
 
-#### Execution Error
+#### Внутренняя ошибка сервера
+**Код состояния:** 500 Internal Server Error
 
-**Status Code:** 400 Bad Request
+## 5. Обработка ошибок
 
-```json
-{
-    "error": "Error message from the executed code",
-    "stdout": "Output from the executed code",
-    "exit_code": 400
-}
-```
+Эндпоинт обрабатывает ошибки параметров, синтаксиса кода, таймауты и системные сбои. Контекст приложения (`app.py`) также управляет переполнением очереди (429 Too Many Requests).
 
-#### Execution Timeout
+## 6. Примечания по использованию
 
-**Status Code:** 408 Request Timeout
+- Код запускается в песочнице с ограниченным доступом к ресурсам системы.
+- Время выполнения ограничено (макс. 300 сек).
+- Результат (stdout, stderr, возвращаемое значение) возвращается в ответе.
+- При наличии `webhook_url` результат дублируется на указанный адрес.
 
-```json
-{
-    "error": "Execution timed out after 10 seconds"
-}
-```
+## 7. Общие проблемы
 
-#### Internal Server Error
+- Попытки доступа к защищенным ресурсам (файловая система, сеть и т.д.).
+- Слишком длительные вычисления, вызывающие таймаут.
+- Некорректные ссылки вебхуков.
 
-**Status Code:** 500 Internal Server Error
+## 8. Лучшие практики
 
-```json
-{
-    "error": "An internal server error occurred",
-    "stdout": "",
-    "stderr": "",
-    "exit_code": 500
-}
-```
-
-## 5. Error Handling
-
-The endpoint handles various types of errors, including:
-
-- Missing or invalid parameters (400 Bad Request)
-- Execution errors, such as syntax errors or exceptions (400 Bad Request)
-- Execution timeout (408 Request Timeout)
-- Internal server errors (500 Internal Server Error)
-
-The main application context (`app.py`) also includes error handling for queue overload (429 Too Many Requests) and other general errors.
-
-## 6. Usage Notes
-
-- The executed code runs in a sandboxed environment, with limited access to system resources.
-- The code execution is limited to a maximum of 300 seconds (5 minutes) by default, but this can be adjusted using the `timeout` parameter.
-- The execution result, including stdout, stderr, and the return value, is captured and returned in the response.
-- If a `webhook_url` is provided, the execution result will also be sent to the specified webhook.
-
-## 7. Common Issues
-
-- Attempting to execute code that accesses restricted resources or performs disallowed operations may result in an execution error.
-- Long-running or resource-intensive code may trigger the execution timeout.
-- Providing an invalid `webhook_url` will prevent the execution result from being delivered to the specified webhook.
-
-## 8. Best Practices
-
-- Always validate and sanitize user input to prevent code injection attacks.
-- Set an appropriate timeout value based on the expected execution time of the code.
-- Monitor the execution logs for any errors or unexpected behavior.
-- Implement rate limiting or queue management to prevent abuse or overload of the endpoint.
-- Consider implementing additional security measures, such as code sandboxing or whitelisting/blacklisting certain operations or modules.
+- Всегда проверяйте и очищайте входные данные для предотвращения инъекций.
+- Устанавливайте разумные значения таймаута.
+- Мониторьте логи на наличие подозрительной активности.
+- Используйте очереди для управления нагрузкой.

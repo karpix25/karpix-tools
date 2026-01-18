@@ -1,26 +1,26 @@
-# S3 Upload API
+# API загрузки в S3
 
-This endpoint allows you to stream a file from a remote URL directly to an S3-compatible storage service without using local disk space.
+Этот эндпоинт позволяет передавать файл с удаленного URL напрямую в S3-совместимое хранилище без использования локального дискового пространства.
 
-## Endpoint
+## Конечная точка (Endpoint)
 
 `POST /v1/s3/upload`
 
-## Authentication
+## Аутентификация
 
-This endpoint requires an API key to be provided in the `X-API-Key` header.
+Для этого эндпоинта требуется ключ API, передаваемый в заголовке `X-API-Key`.
 
-## Request Body
+## Тело запроса
 
-The request body should be a JSON object with the following properties:
+Тело запроса должно быть объектом JSON со следующими свойствами:
 
-| Property | Type | Required | Description |
+| Свойство | Тип | Обязательно | Описание |
 |----------|------|----------|-------------|
-| file_url | string | Yes | The URL of the file to upload to S3 |
-| filename | string | No | Custom filename to use for the uploaded file. If not provided, the original filename will be used |
-| public | boolean | No | Whether to make the file publicly accessible. Defaults to `false` |
+| file_url | string | Да | URL файла для загрузки в S3 |
+| filename | string | Нет | Пользовательское имя файла. Если не указано, будет использовано оригинальное имя. |
+| public | boolean | Нет | Сделать ли файл общедоступным. По умолчанию `false`. |
 
-Example request body:
+### Пример тела запроса:
 ```json
 {
   "file_url": "https://example.com/path/to/file.mp4",
@@ -29,18 +29,18 @@ Example request body:
 }
 ```
 
-## Response
+## Ответ
 
-The response will be a JSON object with the following properties:
+Ответ будет объектом JSON со следующими свойствами:
 
-| Property | Type | Description |
+| Свойство | Тип | Описание |
 |----------|------|-------------|
-| url | string | The URL of the uploaded file. For public files, this is a direct URL. For private files, this is a pre-signed URL that will expire after 1 hour |
-| filename | string | The filename of the uploaded file |
-| bucket | string | The name of the S3 bucket where the file was uploaded |
-| public | boolean | Whether the file is publicly accessible |
+| url | string | URL загруженного файла. Для публичных файлов — прямая ссылка. Для приватных — подписанная ссылка (expires в течение 1 часа). |
+| filename | string | Имя загруженного файла |
+| bucket | string | Имя бакета S3, куда был загружен файл |
+| public | boolean | Доступен ли файл публично |
 
-Example response:
+### Пример ответа:
 ```json
 {
   "url": "https://bucket-name.s3.region.amazonaws.com/custom-name.mp4",
@@ -50,17 +50,17 @@ Example response:
 }
 ```
 
-## Error Handling
+## Обработка ошибок
 
-If an error occurs, the response will include an error message with an appropriate HTTP status code.
+При возникновении ошибки ответ будет содержать сообщение об ошибке с соответствующим кодом состояния HTTP.
 
-## Technical Details
+## Технические детали
 
-This endpoint uses the S3-compatible multipart upload API to stream the file directly from the source URL to S3 without saving it locally. This allows for efficient transfer of large files with minimal memory usage.
+Этот эндпоинт использует API многокомпонентной загрузки (multipart upload) для передачи файла напрямую из исходного URL в S3 без сохранения локально.
 
-The implementation:
-1. Streams the file from the source URL in chunks
-2. Uploads each chunk to S3 as a part of a multipart upload
-3. Completes the multipart upload once all parts are uploaded
+Реализация:
+1. Потоковое чтение файла из источника частями (chunks).
+2. Загрузка каждой части в S3 как компонента multipart upload.
+3. Завершение загрузки после передачи всех частей.
 
-This approach supports resumable uploads and can handle large files efficiently.
+Этот подход позволяет эффективно работать с большими файлами и поддерживает возможность возобновления загрузки.

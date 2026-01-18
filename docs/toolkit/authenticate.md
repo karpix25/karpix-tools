@@ -1,35 +1,35 @@
-# Authenticate Endpoint
+# Эндпоинт аутентификации
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/toolkit/authenticate` endpoint is a part of the `v1_toolkit_auth` blueprint in the API structure. Its purpose is to authenticate requests by verifying the provided API key against a predefined value. This endpoint serves as a gatekeeper, ensuring that only authorized clients can access the API's resources.
+Эндпоинт `/v1/toolkit/authenticate` является частью нашего API. Его целью является аутентификация запросов путем проверки предоставленного ключа API. Этот эндпоинт служит «пропускным пунктом», гарантируя, что только авторизованные клиенты могут получить доступ к ресурсам API.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
-- URL Path: `/v1/toolkit/authenticate`
-- HTTP Method: `GET`
+- Путь URL: `/v1/toolkit/authenticate`
+- HTTP-метод: `GET`
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `X-API-Key` (required): The API key used for authentication.
+- `X-API-Key` (обязательно): Ключ API, используемый для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-This endpoint does not require any request body parameters.
+Этот эндпоинт не требует параметров в теле запроса.
 
-### Example Request
+### Пример запроса
 
 ```bash
 curl -X GET -H "X-API-Key: YOUR_API_KEY" http://localhost:8080/v1/toolkit/authenticate
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-If the provided API key matches the predefined value, the endpoint will return a 200 OK status code with the following response:
+Если предоставленный ключ API верен, эндпоинт вернет код состояния 200 OK со следующим ответом:
 
 ```json
 {
@@ -49,9 +49,9 @@ If the provided API key matches the predefined value, the endpoint will return a
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-If the provided API key is invalid or missing, the endpoint will return a 401 Unauthorized status code with the following response:
+Если ключ API неверный или отсутствует, будет возвращен код 401 Unauthorized:
 
 ```json
 {
@@ -71,22 +71,22 @@ If the provided API key is invalid or missing, the endpoint will return a 401 Un
 }
 ```
 
-## 5. Error Handling
+## 5. Обработка ошибок
 
-The main error that can occur with this endpoint is providing an invalid or missing API key. In this case, the endpoint will return a 401 Unauthorized status code with an appropriate error message.
+Основная ошибка — неверный или отсутствующий ключ API (401 Unauthorized).
 
-## 6. Usage Notes
+## 6. Примечания по использованию
 
-- This endpoint is designed to be used as a gatekeeper for the API, ensuring that only authorized clients can access the API's resources.
-- The API key should be kept secure and should not be shared with unauthorized parties.
+- Этот эндпоинт предназначен для проверки прав доступа.
+- Храните ключ API в секрете.
 
-## 7. Common Issues
+## 7. Общие проблемы
 
-- Forgetting to include the `X-API-Key` header in the request.
-- Using an invalid or expired API key.
+- Забыли указать заголовок `X-API-Key`.
+- Использование неверного ключа.
 
-## 8. Best Practices
+## 8. Лучшие практики
 
-- Rotate API keys periodically to enhance security.
-- Store API keys securely and avoid committing them to version control systems.
-- Consider implementing additional security measures, such as rate limiting or IP whitelisting, to further protect the API.
+- Периодически обновляйте ключи API (ротация).
+- Храните ключи в безопасном месте, не коммитьте их в Git.
+- Используйте дополнительные меры защиты, такие как ограничение по IP (IP whitelisting).

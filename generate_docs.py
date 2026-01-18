@@ -58,45 +58,45 @@ def load_app_context():
         print(f"Warning: Could not load app.py: {str(e)}")
         return None
 
-# The prompt template to send to Claude
+# Промпт для Claude
 CLAUDE_PROMPT = '''
-
-    I am providing you with a Python file containing API endpoint definitions.
+    Я предоставляю тебе файл Python, содержащий определения эндпоинтов API.
     
-    First, here is the main application context from app.py that shows how the API is structured and handled:
+    Сначала вот основной контекст приложения из app.py, который показывает структуру и логику обработки API:
 
-** app.py below
+** app.py ниже
 
 {app_context}
 
-** app.py DONE
+** app.py КОНЕЦ
 
-    Now, please read through the following endpoint code and analyze it in the context of the main application:
+    Теперь, пожалуйста, прочитай следующий код эндпоинта и проанализируй его в контексте основного приложения:
 
-**endpoint below
+**код эндпоинта ниже
 
 {file_content}
 
-    Please generate detailed documentation in Markdown format as follows:
+    Пожалуйста, сгенерируй подробную документацию в формате Markdown следующим образом:
 
-    1. Overview: Describe the purpose of the endpoint and how it fits into the overall API structure shown in app.py.
-    2. Endpoint: Specify the URL path and HTTP method.
-    3. Request:
-    - Headers: List any required headers, such as the x-api-key headers.
-    - Body Parameters: List the required and optional parameters, including the parameter type and purpose.
-    - Specifically study the validate_payload directive in the routes file to build the documentation
-    - Example Request: Provide a sample request payload and a sample curl command.
-    4. Response:
-    - Success Response: Reference the endpoint and general response from the app.py to show a full sample response from the api
-    - Error Responses: Include examples of common error status codes, with example JSON responses for each.
-    5. Error Handling: 
-    - Describe common errors, like missing or invalid parameters, and indicate which status codes they produce
-    - Include any specific error handling from the main application context
-    6. Usage Notes: Any additional notes on using the endpoint effectively.
-    7. Common Issues: List any common issues a user might encounter.
-    8. Best Practices: Any recommended best practices for this endpoint.
+    1. Обзор (Overview): Опиши назначение эндпоинта и то, как он вписывается в общую структуру API, показанную в app.py.
+    2. Эндпоинт (Endpoint): Укажи путь URL и метод HTTP.
+    3. Запрос (Request):
+    - Заголовки (Headers): Перечисли все необходимые заголовки, такие как x-api-key.
+    - Параметры тела (Body Parameters): Перечисли обязательные и необязательные параметры, включая тип параметра и его назначение.
+    - Внимательно изучи директиву validate_payload в файле маршрутов, чтобы составить документацию.
+    - Пример запроса (Example Request): Предоставь пример JSON-тела запроса и пример команды curl.
+    4. Ответ (Response):
+    - Успешный ответ (Success Response): Сошлись на эндпоинт и общий формат ответа из app.py, чтобы показать полный пример ответа API.
+    - Ответы с ошибками (Error Responses): Включи примеры распространенных кодов состояния ошибок с примерами JSON-ответов для каждого.
+    5. Обработка ошибок (Error Handling): 
+    - Опиши распространенные ошибки, такие как отсутствие или неверные параметры, и укажи, какие коды состояния они производят.
+    - Включи любую специфическую обработку ошибок из контекста основного приложения.
+    6. Примечания по использованию (Usage Notes): Дополнительные примечания по эффективному использованию эндпоинта.
+    7. Общие проблемы (Common Issues): Список распространенных проблем, с которыми может столкнуться пользователь.
+    8. Лучшие практики (Best Practices): Рекомендуемые лучшие практики для этого эндпоинта.
     
-    Format the documentation with markdown headings, bullet points, and code blocks.
+    Отформатируй документацию с помощью заголовков markdown, маркированных списков и блоков кода.
+    Отвечай строго на русском языке.
 '''
 
 def call_claude_api(message: str, api_key: str) -> str:

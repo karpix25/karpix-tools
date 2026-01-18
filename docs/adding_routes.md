@@ -1,25 +1,25 @@
-# Adding New Routes
+# Добавление новых маршрутов (Routes)
 
-This document explains how to add new routes to the application using the dynamic route registration system.
+Этот документ объясняет, как добавлять новые маршруты в приложение, используя систему динамической регистрации маршрутов.
 
-## Overview
+## Обзор
 
-The application now uses a dynamic route registration system that automatically discovers and registers all Flask blueprints in the `routes` directory. This means you no longer need to manually import and register blueprints in `app.py`.
+Приложение использует систему динамической регистрации маршрутов, которая автоматически обнаруживает и регистрирует все Flask blueprints в директории `routes`. Это означает, что вам больше не нужно вручную импортировать и регистрировать blueprints в `app.py`.
 
-## How to Add a New Route
+## Как добавить новый маршрут
 
-1. **Create a new route file**
+1. **Создайте новый файл маршрута**
 
-   Create a new Python file in the appropriate location in the `routes` directory. For a v1 API endpoint, you would typically place it in a subdirectory under `routes/v1/` based on the functionality.
+   Создайте новый файл Python в соответствующем месте внутри директории `routes`. Для эндпоинта API версии v1 обычно его следует поместить в поддиректорию внутри `routes/v1/` в зависимости от функциональности.
 
-   For example:
+   Пример:
    ```
    routes/v1/email/send_email.py
    ```
 
-2. **Define your Blueprint**
+2. **Определите ваш Blueprint**
 
-   In your route file, define a Flask Blueprint with a unique name. Make sure to follow the naming convention:
+   В файле маршрута определите Flask Blueprint с уникальным именем. Убедитесь, что вы следуете соглашению о именовании:
    
    ```python
    # routes/v1/email/send_email.py
@@ -34,48 +34,48 @@ The application now uses a dynamic route registration system that automatically 
    @queue_task_wrapper(bypass_queue=False)
    def send_email(job_id, data):
        """
-       Send an email
+       Отправить электронное письмо
        
-       Args:
-           job_id (str): Job ID assigned by queue_task_wrapper
-           data (dict): Request data containing email details
+       Аргументы:
+           job_id (str): ID задачи, назначенный queue_task_wrapper
+           data (dict): Данные запроса, содержащие детали письма
        
-       Returns:
-           Tuple of (response_data, endpoint_string, status_code)
+       Возвращает:
+           Кортеж из (response_data, endpoint_string, status_code)
        """
-       # Your implementation here
+       # Ваша реализация здесь
        endpoint = "/v1/email/send"
        
-       # Return response
+       # Возвращаем ответ
        return {"message": "Email sent"}, endpoint, 200
    ```
 
-3. **That's it!**
+3. **Это всё!**
 
-   No need to modify `app.py`. The blueprint will be automatically discovered and registered when the application starts.
+   Нет необходимости изменять `app.py`. Blueprint будет автоматически обнаружен и зарегистрирован при запуске приложения.
 
-## Naming Conventions
+## Соглашения о именовании
 
-When creating new routes, please follow these naming conventions:
+При создании новых маршрутов, пожалуйста, соблюдайте следующие соглашения:
 
-1. **Blueprint names**: Use the format `{version}_{category}_{action}_bp`
-   - Example: `v1_email_send_bp` for sending emails
+1. **Имена Blueprint**: Используйте формат `{версия}_{категория}_{действие}_bp`
+   - Пример: `v1_email_send_bp` для отправки писем
 
-2. **Route paths**: Use the format `/{version}/{category}/{action}`
-   - Example: `/v1/email/send`
+2. **Пути маршрутов (Route paths)**: Используйте формат `/{версия}/{категория}/{действие}`
+   - Пример: `/v1/email/send`
 
-3. **File structure**: Place files in directories that match the route structure
-   - Example: `routes/v1/email/send_email.py`
+3. **Структура файлов**: Размещайте файлы в директориях, соответствующих структуре маршрута
+   - Пример: `routes/v1/email/send_email.py`
 
-## Testing Your Route
+## Тестирование вашего маршрута
 
-After adding your route, restart the application and your new endpoint should be available immediately.
+После добавления маршрута перезапустите приложение, и ваш новый эндпоинт должен стать доступен немедленно.
 
-## Troubleshooting
+## Устранение неполадок
 
-If your route isn't being registered:
+Если ваш маршрут не регистрируется:
 
-1. Check logs for any import errors
-2. Ensure your blueprint variable is defined at the module level
-3. Verify the blueprint name follows the naming convention
-4. Make sure your Python file is in the correct directory under `routes/` 
+1. Проверьте логи на наличие ошибок импорта
+2. Убедитесь, что переменная вашего blueprint определена на уровне модуля
+3. Убедитесь, что имя blueprint соответствует соглашению об именовании
+4. Убедитесь, что ваш файл Python находится в правильной директории внутри `routes/` 

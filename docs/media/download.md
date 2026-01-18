@@ -1,94 +1,94 @@
-# Media Download API Endpoint Documentation
+# Документация API эндпоинта для загрузки медиа
 
-## Overview
+## Обзор
 
-The `/v1/BETA/media/download` endpoint provides a powerful interface for downloading media content from various online sources using the yt-dlp library. This endpoint is part of the v1 media services in the API structure, allowing users to download videos, extract audio, and retrieve thumbnails and subtitles from supported platforms. The endpoint handles authentication, request validation, and queues tasks for processing, making it suitable for handling resource-intensive media downloads without blocking the main application thread.
+Эндпоинт `/v1/BETA/media/download` предоставляет мощный интерфейс для загрузки медиа-контента из различных онлайн-источников с использованием библиотеки yt-dlp. Этот эндпоинт является частью медиа-сервисов версии 1, позволяя пользователям загружать видео, извлекать аудио, а также получать миниатюры и субтитры с поддерживаемых платформ. Эндпоинт обрабатывает аутентификацию, валидацию запросов и ставит задачи в очередь для обработки, что делает его пригодным для ресурсоемких загрузок без блокировки основного потока приложения.
 
-## Endpoint
+## Эндпоинт (Endpoint)
 
 - **URL**: `/v1/BETA/media/download`
-- **Method**: `POST`
+- **Метод**: `POST`
 - **Blueprint**: `v1_media_download_bp`
 
-## Request
+## Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key`: Required for authentication (handled by the `@authenticate` decorator)
+- `x-api-key`: Обязательно для аутентификации (обрабатывается декоратором `@authenticate`)
 
-### Body Parameters
+### Параметры тела запроса
 
-#### Required Parameters
+#### Обязательные параметры
 
-| Parameter | Type | Description |
+| Параметр | Тип | Описание |
 |-----------|------|-------------|
-| `media_url` | string (URI format) | The URL of the media to download |
+| `media_url` | string (формат URI) | URL медиа-файла для загрузки |
 
-#### Optional Parameters
+#### Необязательные параметры
 
-| Parameter | Type | Description |
+| Параметр | Тип | Описание |
 |-----------|------|-------------|
-| `webhook_url` | string (URI format) | URL to receive the result when processing is complete |
-| `id` | string | Custom identifier for tracking the request |
-| `cookie` | string | Path to cookie file, URL to cookie file, or cookie string in Netscape format |
-| `cloud_upload` | boolean | When true (default), the downloaded media will be uploaded to cloud storage and a cloud URL will be returned. When false, the direct download URL of the media will be returned instead. |
+| `webhook_url` | string (формат URI) | URL для получения результата по завершении обработки |
+| `id` | string | Пользовательский идентификатор для отслеживания запроса |
+| `cookie` | string | Путь к файлу cookie, URL к файлу или строка cookie в формате Netscape |
+| `cloud_upload` | boolean | Если true (по умолчанию), загруженное медиа будет отправлено в облако. Если false, будет возвращен прямой URL для скачивания. |
 
-#### Format Options (Optional)
+#### Опции формата (необязательно)
 
 ```json
 "format": {
-  "quality": "string",     // Quality specification (e.g., "best")
-  "format_id": "string",   // Specific format ID
-  "resolution": "string",  // Resolution specification (e.g., "720p")
-  "video_codec": "string", // Video codec preference
-  "audio_codec": "string"  // Audio codec preference
+  "quality": "string",     // Спецификация качества (например, "best")
+  "format_id": "string",   // Конкретный ID формата
+  "resolution": "string",  // Разрешение (например, "720p")
+  "video_codec": "string", // Предпочтительный видеокодек
+  "audio_codec": "string"  // Предпочтительный аудиокодек
 }
 ```
 
-#### Audio Options (Optional)
+#### Опции аудио (необязательно)
 
 ```json
 "audio": {
-  "extract": boolean,      // Whether to extract audio
-  "format": "string",      // Audio format (e.g., "mp3", "m4a")
-  "quality": "string"      // Audio quality specification
+  "extract": boolean,      // Извлекать ли аудио
+  "format": "string",      // Формат аудио (например, "mp3", "m4a")
+  "quality": "string"      // Качество аудио
 }
 ```
 
-#### Thumbnail Options (Optional)
+#### Опции миниатюр (необязательно)
 
 ```json
 "thumbnails": {
-  "download": boolean,     // Whether to download thumbnails
-  "download_all": boolean, // Whether to download all available thumbnails
-  "formats": ["string"],   // Array of thumbnail formats to download
-  "convert": boolean,      // Whether to convert thumbnails
-  "embed_in_audio": boolean // Whether to embed thumbnails in audio files
+  "download": boolean,     // Загружать ли миниатюры
+  "download_all": boolean, // Загружать ли все доступные миниатюры
+  "formats": ["string"],   // Массив форматов миниатюр для загрузки
+  "convert": boolean,      // Конвертировать ли миниатюры
+  "embed_in_audio": boolean // Встраивать ли миниатюры в аудиофайлы
 }
 ```
 
-#### Subtitle Options (Optional)
+#### Опции субтитров (необязательно)
 
 ```json
 "subtitles": {
-  "download": boolean,     // Whether to download subtitles
-  "languages": ["string"], // Array of language codes for subtitles
-  "format": "string",      // Subtitle format to download (e.g., 'srt', 'vtt', 'json3')
-  "cloud_upload": boolean  // Whether to upload subtitles to cloud storage (defaults to true)
+  "download": boolean,     // Загружать ли субтитры
+  "languages": ["string"], // Массив кодов языков для субтитров
+  "format": "string",      // Формат субтитров (например, 'srt', 'vtt', 'json3')
+  "cloud_upload": boolean  // Загружать ли субтитры в облако (по умолчанию true)
 }
 ```
 
-#### Download Options (Optional)
+#### Опции загрузки (необязательно)
 
 ```json
 "download": {
-  "max_filesize": integer, // Maximum file size in bytes
-  "rate_limit": "string",  // Download rate limit (e.g., "50K")
-  "retries": integer       // Number of download retry attempts
+  "max_filesize": integer, // Максимальный размер файла в байтах
+  "rate_limit": "string",  // Лимит скорости загрузки (например, "50K")
+  "retries": integer       // Количество попыток повтора загрузки
 }
 ```
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -110,14 +110,14 @@ The `/v1/BETA/media/download` endpoint provides a powerful interface for downloa
   },
   "subtitles": {
     "download": true,
-    "languages": ["en", "es-419"],
+    "languages": ["en", "ru"],
     "format": "srt",
     "cloud_upload": true
   }
 }
 ```
 
-### Example cURL Command
+### Пример команды cURL
 
 ```bash
 curl -X POST \
@@ -143,18 +143,18 @@ curl -X POST \
     },
     "subtitles": {
       "download": true,
-      "languages": ["en", "es-419"],
+      "languages": ["en", "ru"],
       "format": "srt",
       "cloud_upload": true
     }
   }'
 ```
 
-## Response
+## Ответ
 
-### Immediate Response (When Using Webhook)
+### Немедленный ответ (при использовании вебхука)
 
-When a webhook URL is provided, the API will queue the task and return an immediate response with a 202 status code:
+При указании `webhook_url` API поставит задачу в очередь и немедленно вернет ответ с кодом 202:
 
 ```json
 {
@@ -170,7 +170,7 @@ When a webhook URL is provided, the API will queue the task and return an immedi
 }
 ```
 
-### Success Response (When Not Using Webhook or When Webhook Is Called)
+### Успешный ответ (без вебхука или при вызове вебхука)
 
 ```json
 {
@@ -219,9 +219,9 @@ When a webhook URL is provided, the API will queue the task and return an immedi
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-#### Invalid Request (400)
+#### Некорректный запрос (400)
 
 ```json
 {
@@ -236,7 +236,7 @@ When a webhook URL is provided, the API will queue the task and return an immedi
 }
 ```
 
-#### Authentication Error (401)
+#### Ошибка аутентификации (401)
 
 ```json
 {
@@ -246,7 +246,7 @@ When a webhook URL is provided, the API will queue the task and return an immedi
 }
 ```
 
-#### Queue Full (429)
+#### Очередь заполнена (429)
 
 ```json
 {
@@ -261,7 +261,7 @@ When a webhook URL is provided, the API will queue the task and return an immedi
 }
 ```
 
-#### Server Error (500)
+#### Ошибка сервера (500)
 
 ```json
 {
@@ -276,55 +276,51 @@ When a webhook URL is provided, the API will queue the task and return an immedi
 }
 ```
 
-## Error Handling
+## Обработка ошибок
 
-The endpoint handles various error scenarios:
+Эндпоинт обрабатывает различные сценарии:
 
-- **Missing Required Parameters**: Returns a 400 status code with details about the missing parameter
-- **Invalid Parameter Format**: Returns a 400 status code if parameters don't match the expected format
-- **Authentication Failures**: Returns a 401 status code if the API key is invalid or missing
-- **Queue Limits**: Returns a 429 status code if the task queue is full (when MAX_QUEUE_LENGTH is set)
-- **Download Failures**: Returns a 500 status code with details about the download failure
-- **Media Source Errors**: Returns a 500 status code if the media source is unavailable or restricted
+- **Отсутствие обязательных параметров**: Ошибка 400.
+- **Некорректный формат параметров**: Ошибка 400.
+- **Ошибка аутентификации**: Ошибка 401.
+- **Лимиты очереди**: Ошибка 429 при заполнении очереди.
+- **Ошибки загрузки**: Ошибка 500 с деталями сбоя.
+- **Ошибки источника медиа**: Ошибка 500, если источник недоступен или ограничен.
 
-## Usage Notes
+## Примечания по использованию
 
-1. **Webhook Handling**: 
-   - When providing a `webhook_url`, the request will be queued and processed asynchronously
-   - Without a `webhook_url`, the request will be processed synchronously, which may lead to longer response times
+1. **Использование вебхуков**: 
+   - С `webhook_url` запрос обрабатывается асинхронно.
+   - Без `webhook_url` запрос выполняется синхронно, что может привести к долгому ожиданию.
 
-2. **Format Selection**:
-   - The `format` options allow fine-grained control over the downloaded media quality
-   - When multiple format options are specified, they are combined with a '+' separator
+2. **Выбор формата**:
+   - Опции `format` позволяют детально настроить качество загружаемого медиа.
 
-3. **Audio Extraction**:
-   - Setting `audio.extract` to `true` will extract audio from the media
-   - Specify `audio.format` to control the output audio format (e.g., "mp3", "m4a")
+3. **Извлечение аудио**:
+   - `audio.extract: true` позволяет получить только аудиодорожку.
+   - Укажите `audio.format` для выбора формата (например, "mp3").
 
-4. **Thumbnail Handling**:
-   - When `thumbnails.download` is `true`, the API will download and provide URLs for thumbnails
-   - Use `thumbnails.download_all` to retrieve all available thumbnails
+4. **Работа с миниатюрами**:
+   - При `thumbnails.download: true` API предоставит ссылки на превью.
 
-5. **Rate Limiting**:
-   - Use `download.rate_limit` to control download speed (e.g., "50K" for 50 KB/s)
-   - This can help prevent IP blocking from some media sources
+5. **Ограничение скорости**:
+   - `download.rate_limit` позволяет контролировать скорость загрузки (например, "50K" для 50 КБ/с).
 
-## Common Issues
+## Общие проблемы
 
-1. **Geo-restricted Content**: Some media may be unavailable in certain regions
-2. **Rate Limiting**: Media sources may rate-limit or block frequent downloads
-3. **Large File Downloads**: Very large files may time out during download
-4. **Format Availability**: Not all requested formats may be available for all media sources
-5. **Webhook Failures**: If the webhook URL is unreachable, you won't receive the final result
-6. **Queue Overflow**: Requests may be rejected if the processing queue is full
+1. **Гео-ограниченный контент**: Некоторое медиа может быть недоступно в определенных регионах.
+2. **Ограничение частоты запросов**: Источники могут блокировать частые загрузки.
+3. **Загрузка очень больших файлов**: Может произойти таймаут.
+4. **Доступность форматов**: Не все форматы доступны для всех источников.
+5. **Ошибки вебхуков**: Если ваш URL недоступен, вы не получите результат.
 
-## Best Practices
+## Лучшие практики
 
-1. **Use Webhooks for Large Downloads**: Always use webhooks for potentially large or slow downloads to avoid timeout issues
-2. **Specify Format Constraints**: Be specific about format requirements to avoid unnecessarily large downloads
-3. **Handle Thumbnails Separately**: For efficiency, only request thumbnails when needed
-4. **Implement Retry Logic**: Implement client-side retry logic for handling temporary failures
-5. **Monitor Queue Length**: Check the `queue_length` in responses to gauge system load
-6. **Use Reasonable Rate Limits**: Set appropriate `download.rate_limit` values to avoid being blocked by media sources
-7. **Validate Media URLs**: Ensure media URLs are valid and accessible before submitting
-8. **Store Downloaded Media**: The cloud URLs provided in responses may have expiration times, so download and store important media promptly
+1. **Используйте вебхуки для больших загрузок**, чтобы избежать таймаутов.
+2. **Указывайте ограничения формата**, чтобы не качать лишний объем данных.
+3. **Запрашивайте миниатюры только при необходимости**.
+4. **Реализуйте логику повторных попыток** на стороне клиента.
+5. **Следите за длиной очереди (`queue_length`)** для понимания нагрузки на систему.
+6. **Устанавливайте разумные лимиты скорости**, чтобы не быть заблокированными источниками.
+7. **Валидируйте URL** перед отправкой.
+8. **Сохраняйте полученное медиа**: Облачные ссылки могут иметь ограниченный срок жизни.

@@ -1,218 +1,210 @@
-# Installing on the Google Cloud Platform (GCP)
+# Установка на Google Cloud Platform (GCP)
 
-## 🎥 Video Instructions
+## 🎥 Видео-инструкции
 
-Watch **[Detailed Video Instructions](https://youtu.be/6bC93sek9v8)** to set up the No-Code Architects Toolkit API.
+Посмотрите **[Подробные видео-инструкции](https://youtu.be/6bC93sek9v8)** по настройке No-Code Architects Toolkit API.
 
-- Use the **Docker Image** below:
+- Используйте **Docker Image** ниже:
 
   ```
   stephengpope/no-code-architects-toolkit:latest
   ```
 
-### Video Resources
+### Ссылки из видео
 
-- **[Postman Template](https://bit.ly/49Gkh61)**
+- **[Шаблон Postman](https://bit.ly/49Gkh61)**
 - **[NCA Toolkit API GPT](https://bit.ly/4feDDk4)** 
 
-Or use the guide below walks you through the steps to install the NCA Toolkit API on GCP.
+Также вы можете использовать руководство ниже для пошаговой установки NCA Toolkit API на GCP.
 
 ---
 
-## **Prerequisites**
-- A Google Cloud account. [Sign up here](https://cloud.google.com/) if you don't already have one.
-  - New users receive $300 in free credits.
-- Basic knowledge of GCP services such as Cloud Run and Cloud Storage.
-- A terminal or code editor for managing files.
+## **Предварительные условия**
+- Аккаунт Google Cloud. [Зарегистрируйтесь здесь](https://cloud.google.com/), если у вас его еще нет.
+  - Новые пользователи получают $300 в виде бесплатных кредитов.
+- Базовые знания сервисов GCP, таких как Cloud Run и Cloud Storage.
+- Терминал или редактор кода для управления файлами.
 
 ---
 
-## **Step 1: Create a Google Cloud Project**
-1. Log into the [GCP Console](https://console.cloud.google.com/).
-2. Click on the **Project Selector** in the top navigation bar and select **New Project**.
-3. Enter a project name, such as `NCA Toolkit Project`.
-4. Click **Create**.
+## **Шаг 1: Создание проекта Google Cloud**
+1. Войдите в [Консоль GCP](https://console.cloud.google.com/).
+2. Нажмите на **Селектор проектов** в верхней панели и выберите **New Project**.
+3. Введите имя проекта, например `NCA Toolkit Project`.
+4. Нажмите **Create**.
 
 ---
 
-## **Step 2: Enable Required APIs**
-Enable the following APIs:
+## **Шаг 2: Включение необходимых API**
+Включите следующие API:
 - **Cloud Storage API**
 - **Cloud Storage JSON API**
 - **Cloud Run API**
 
-### **How to Enable APIs:**
-1. In the GCP Console, navigate to **APIs & Services** > **Enable APIs and Services**.
-2. Search for each API, click on it, and enable it.
+### **Как включить API:**
+1. В консоли GCP перейдите в **APIs & Services** > **Enable APIs and Services**.
+2. Найдите каждый API в поиске, нажмите на него и выберите Enable.
 
 ---
 
-## **Step 3: Create a Service Account**
-1. Navigate to **IAM & Admin** > **Service Accounts** in the GCP Console.
-2. Click **+ Create Service Account**.
-   - Enter a name (e.g., `NCA Toolkit Service Account`).
-3. Assign the following roles to the service account:
+## **Шаг 3: Создание сервисного аккаунта**
+1. Перейдите в **IAM & Admin** > **Service Accounts** в консоли GCP.
+2. Нажмите **+ Create Service Account**.
+   - Введите имя (например, `NCA Toolkit Service Account`).
+3. Назначьте следующие роли сервисному аккаунту:
    - **Storage Admin**
    - **Viewer**
-4. Click **Done** to create the service account.
-5. Open the service account details and navigate to the **Keys** tab.
-   - Click **Add Key** > **Create New Key**.
-   - Choose **JSON** format, download the file, and store it securely.
+4. Нажмите **Done**, чтобы создать аккаунт.
+5. Откройте детали аккаунта и перейдите на вкладку **Keys**.
+   - Нажмите **Add Key** > **Create New Key**.
+   - Выберите формат **JSON**, скачайте файл и сохраните его в надежном месте.
 
 ---
 
-## **Step 4: Create a Cloud Storage Bucket**
-1. Navigate to **Storage** > **Buckets** in the GCP Console.
-2. Click **+ Create Bucket**.
-   - Choose a unique bucket name (e.g., `nca-toolkit-bucket`).
-   - Leave default settings, but:
-     - Uncheck **Enforce public access prevention**.
-     - Set **Access Control** to **Uniform**.
-3. Click **Create** to finish.
-4. Go to the bucket permissions, and add **allUsers** as a principal with the role:
+## **Шаг 4: Создание хранилища Cloud Storage Bucket**
+1. Перейдите в **Storage** > **Buckets** в консоли GCP.
+2. Нажмите **+ Create Bucket**.
+   - Выберите уникальное имя (например, `nca-toolkit-bucket`).
+   - Оставьте настройки по умолчанию, но:
+     - Снимите галочку с **Enforce public access prevention**.
+     - Установите **Access Control** в значение **Uniform**.
+3. Нажмите **Create**.
+4. Перейдите в настройки доступа (Permissions) бакета и добавьте **allUsers** в качестве принципала с ролью:
    - **Storage Object Viewer**.
-5. Save changes.
+5. Сохраните изменения.
 
 ---
 
-## **Step 5: Deploy on Google Cloud Run**
+## **Шаг 5: Развертывание на Google Cloud Run**
 
-### 1. Navigate to Cloud Run
-- Open the **Cloud Run** service in the **Google Cloud Console**.
+### 1. Перейдите в Cloud Run
+- Откройте сервис **Cloud Run** в консоли Google Cloud.
 
-### 2. Create a New Service
-- Click **Create Service**.
-- Then **Deploy one revision from Docker Hub using the image below**:
+### 2. Создайте новый сервис
+- Нажмите **Create Service**.
+- Выберите **Deploy one revision from Docker Hub using the image below**:
 
   ```
   stephengpope/no-code-architects-toolkit:latest
   ```
 
-### 3. Allow Unauthenticated Invocations
-- Check the box to **allow unauthenticated invocations**.
+### 3. Разрешите неаутентифицированные вызовы
+- Отметьте опцию **allow unauthenticated invocations**.
 
-### 4. Configure Resource Allocation
-- Set **Memory**: `16 GB`.
-- Set **CPU**: `4 CPUs`.
-- Set **CPU Allocation**: **Always Allocated**.
+### 4. Настройка ресурсов
+- **Memory**: `16 GB`.
+- **CPU**: `4 CPUs`.
+- **CPU Allocation**: **Always Allocated**.
 
-### 5. Adjust Scaling Settings
-- **Minimum Instances**: `0` (to minimize cost during idle times).
-- **Maximum Instances**: `5` (adjustable based on expected load).
+### 5. Настройка масштабирования
+- **Minimum Instances**: `0` (для минимизации затрат при простое).
+- **Maximum Instances**: `5` (можно настроить под вашу нагрузку).
 
-### 6. Use Second-Generation Servers
-- Scroll to **Platform Version** and select **Second Generation**.
-- Second-generation servers offer better performance and feature support for advanced use cases.
+### 6. Используйте серверы второго поколения (Second-Generation)
+- В разделе **Platform Version** выберите **Second Generation**.
+- Они обеспечивают лучшую производительность и поддержку расширенных функций.
 
-### 7. Add Environment Variables
-- Add the following environment variables:
-- `API_KEY`: Your API key (e.g., `Test123`).
-- `GCP_BUCKET_NAME`: The name of your Cloud Storage bucket.
-- `GCP_SA_CREDENTIALS`: The JSON key of your service account.
-  - Paste the **entire contents** of the downloaded JSON key file into this field.
-  - Ensure:
-    - Proper JSON formatting.
-    - No leading or trailing spaces.
+### 7. Добавление переменных окружения
+- Добавьте следующие переменные:
+- `API_KEY`: Ваш ключ (например, `Test123`).
+- `GCP_BUCKET_NAME`: Имя вашего Cloud Storage бакета.
+- `GCP_SA_CREDENTIALS`: JSON-ключ вашего сервисного аккаунта.
+  - Вставьте **все содержимое** скачанного JSON-файла в это поле.
+  - Убедитесь в корректности формата и отсутствии лишних пробелов.
 
-### 8. Configure Advanced Settings
-- Set the **Container Port**: Default to `8080`.
-- **Request Timeout**: `300 seconds` (to handle long-running requests).
-- Enable **Startup Boost** to improve performance for the first request after a cold start.
+### 8. Расширенные настройки
+- **Container Port**: По умолчанию `8080`.
+- **Request Timeout**: `300 seconds` (для длительных запросов).
+- Включите **Startup Boost** для ускорения первого запуска после простоя.
 
-### 9. Deploy the Service
-- Verify all settings and click **Create**.
-- The deployment process might take a few minutes. Once completed, a green checkmark should appear in the Cloud Run dashboard.
-
-By following these steps, the NCA Toolkit will be successfully deployed and accessible via Google Cloud Run with second-generation servers for optimal performance.
+### 9. Развертывание
+- Проверьте все настройки и нажмите **Create**.
+- Процесс может занять несколько минут. После завершения в панели Cloud Run появится зеленая галочка.
 
 ---
 
-## **Step 6: Test the Deployment**
+## **Шаг 6: Тестирование развертывания**
 
-1. Install **[Postman Template](https://bit.ly/49Gkh61)** on your computer.
-2. Import the API example requests from the NCA Toolkit GitHub repository.
-3. Configure two environment variables in Postman:
-   - `base_url`: Your deployed Cloud Run service URL.
-   - `x-api-key`: The API key you configured in **Step 5**.
-4. Use the example requests to validate that the API is functioning correctly.
-5. Use the **[NCA Toolkit API GPT](https://bit.ly/4feDDk4)** to learn more.
-
-By following these steps, your NCA Toolkit API should be successfully deployed on Google Cloud Platform.
+1. Установите **[Шаблон Postman](https://bit.ly/49Gkh61)**.
+2. Импортируйте примеры запросов из репозитория NCA Toolkit.
+3. Настройте две переменные окружения в Postman:
+   - `base_url`: URL вашего сервиса Cloud Run.
+   - `x-api-key`: Ключ API, настроенный на **Шаге 5**.
+4. Используйте примеры для проверки работоспособности API.
+5. Для изучения возможностей используйте **[NCA Toolkit API GPT](https://bit.ly/4feDDk4)**.
 
 ---
 
-## **Optional: Enable Cloud Run Jobs for Long-Running Tasks**
+## **Опционально: Включение Cloud Run Jobs для длительных задач**
 
-For tasks that may exceed Cloud Run's request timeout or require dedicated resources, you can optionally configure Cloud Run Jobs to offload long-running operations.
+Для задач, которые могут превысить таймаут Cloud Run или требуют выделенных ресурсов, можно настроить Cloud Run Jobs.
 
-### **What are Cloud Run Jobs?**
+### **Что такое Cloud Run Jobs?**
 
-Cloud Run Jobs execute tasks that run to completion and then shut down, making them ideal for:
-- Video processing
-- Large file downloads
-- Batch operations
-- Any task that may take longer than the request timeout
+Это задачи, которые выполняются до завершения и затем отключаются. Идеально для:
+- Обработки видео
+- Загрузки больших файлов
+- Пакетных операций
+- Любых задач дольше 300 секунд
 
-### **Benefits:**
-- **No timeout limits**: Jobs can run as long as needed (up to 24 hours)
-- **Cost-effective**: Only pay for the time the job is running
-- **Automatic scaling**: Each job gets dedicated resources
-- **Better reliability**: Jobs won't be interrupted by request timeouts
+### **Преимущества:**
+- **Нет лимита по времени**: Могут работать до 24 часов.
+- **Экономичность**: Оплата только за фактическое время работы.
+- **Автомасштабирование**: Каждая задача получает выделенные ресурсы.
+- **Надежность**: Не прерываются таймаутами HTTP-запросов.
 
 ---
 
-### **Setup Instructions**
+### **Инструкции по настройке**
 
-#### **1. Create a Cloud Run Job**
+#### **1. Создание Cloud Run Job**
 
-1. Navigate to **Cloud Run** > **Jobs** in the GCP Console
-2. Click **Create Job**
-3. Configure the job:
+1. Перейдите в **Cloud Run** > **Jobs** в консоли GCP.
+2. Нажмите **Create Job**.
+3. Настройте задачу:
    - **Container image**: `stephengpope/no-code-architects-toolkit:latest`
-   - **Job name**: `nca-toolkit-job` (or your preferred name)
-   - **Region**: Same as your Cloud Run service (e.g., `us-central1`)
+   - **Job name**: `nca-toolkit-job`
+   - **Region**: Тот же, что и у сервиса (например, `us-central1`)
    - **Memory**: `16 GB`
    - **CPU**: `4 CPUs`
-   - **Task timeout**: `3600 seconds` (1 hour, adjust as needed)
-   - **Maximum retries**: `0` (jobs will handle their own error reporting)
+   - **Task timeout**: `3600 seconds` (1 час, можно изменить)
+   - **Maximum retries**: `0`
 
-#### **2. Configure Environment Variables**
+#### **2. Настройка переменных окружения**
 
-Add the same environment variables as your Cloud Run service:
-- `API_KEY`: Your API key
-- `GCP_BUCKET_NAME`: Your Cloud Storage bucket name
-- `GCP_SA_CREDENTIALS`: Your service account JSON key (entire contents)
+Добавьте те же переменные, что и для сервиса:
+- `API_KEY`
+- `GCP_BUCKET_NAME`
+- `GCP_SA_CREDENTIALS` (все содержимое JSON)
 
-#### **3. Add Job Configuration to Cloud Run Service**
+#### **3. Добавление конфигурации в сервис Cloud Run**
 
-Update your Cloud Run **service** environment variables to enable job triggering:
+Обновите переменные в основном **сервисе** Cloud Run:
+- `GCP_JOB_NAME`: Имя вашей задачи (например, `nca-toolkit-job`)
+- `GCP_JOB_LOCATION`: Регион развертывания задачи (например, `us-central1`)
 
-- `GCP_JOB_NAME`: The name of your Cloud Run Job (e.g., `nca-toolkit-job`)
-- `GCP_JOB_LOCATION`: The region where your job is deployed (e.g., `us-central1`)
+#### **4. Назначение прав**
 
-#### **4. Grant Permissions**
-
-Your service account needs permission to trigger jobs:
-
-1. Navigate to **IAM & Admin** > **IAM**
-2. Find your service account (e.g., `NCA Toolkit Service Account`)
-3. Click **Edit** and add the following role:
+Сервисному аккаунту нужны права на запуск задач:
+1. Перейдите в **IAM & Admin** > **IAM**.
+2. Найдите ваш аккаунт (например, `NCA Toolkit Service Account`).
+3. Нажмите **Edit** и добавьте роли:
    - **Cloud Run Jobs Executor**
    - **Cloud Run Jobs Executor With Overrides**
-4. Save changes
+4. Сохраните изменения.
 
 ---
 
-### **How It Works**
+### **Как это работает**
 
-When you make a request with a `webhook_url` parameter:
+Когда вы делаете запрос с параметром `webhook_url`:
 
-1. **Cloud Run service** receives the request
-2. If `GCP_JOB_NAME` is configured, it triggers a **Cloud Run Job** instead of processing locally
-3. The job starts, processes the task, and sends results to your webhook
-4. The job automatically shuts down after completion
+1. **Сервис Cloud Run** принимает запрос.
+2. Если `GCP_JOB_NAME` настроен, он запускает **Cloud Run Job** вместо локальной обработки.
+3. Задача запускается, обрабатывает файл и отправляет результат на ваш вебхук.
+4. Задача автоматически завершается после выполнения.
 
-**Example request:**
+**Пример запроса:**
 ```json
 {
   "media_url": "https://example.com/large-video.mp4",
@@ -220,52 +212,43 @@ When you make a request with a `webhook_url` parameter:
 }
 ```
 
-The service will:
-- Return immediately with a job submission confirmation
-- Trigger the Cloud Run Job
-- Job processes the video and sends results to your webhook when complete
-- Use **[https://webhook.site/](https://webhook.site/)** for testing webhooks
+Сервис:
+- Сразу вернет подтверждение запуска задачи.
+- Запустит Cloud Run Job.
+- После обработки видео результат придет на вебхук (для тестов можно использовать [webhook.site](https://webhook.site/)).
 
 ---
 
-### **Monitoring Jobs**
+### **Мониторинг задач**
 
-- View job executions in **Cloud Run** > **Jobs** > **[Your Job Name]** > **Executions**
-- Each execution shows:
-  - Execution ID (used for tracking in logs)
-  - Start time
-  - Duration
-  - Status (Running, Succeeded, Failed)
-  - Logs
+- Статус можно смотреть в **Cloud Run** > **Jobs** > **[Имя задачи]** > **Executions**.
+- Там видны: ID выполнения, время начала, длительность, статус и логи.
 
 ---
 
-### **Cost Considerations**
+### **Стоимость**
 
-Cloud Run Jobs pricing:
-- Billed per second of CPU and memory usage
-- Only charged while the job is actively running
-- No charges when idle
-
----
-
-### **Troubleshooting**
-
-**Jobs not triggering?**
-- Verify `GCP_JOB_NAME` and `GCP_JOB_LOCATION` are set correctly in your Cloud Run service
-- Check that your service account has **Cloud Run Invoker** role
-- Ensure the job exists in the specified region
-
-**Jobs failing?**
-- Check job execution logs in Cloud Run console
-- Verify all environment variables are properly set on the job
-- Ensure task timeout is sufficient for your workload
-
-**Not receiving webhooks?**
-- Verify your webhook URL is accessible from GCP
-- Check job execution logs for webhook delivery errors
-- Ensure your webhook endpoint can handle POST requests
+- Оплата посекундно за CPU и память.
+- Платите только когда задача активно выполняется.
+- В режиме простоя плата не взимается.
 
 ---
 
-**Note:** Cloud Run Jobs are completely optional. If not configured, all requests will be processed by the Cloud Run service normally.
+### **Устранение неполадок**
+
+**Задача не запускается?**
+- Проверьте корректность `GCP_JOB_NAME` и `GCP_JOB_LOCATION` в сервисе.
+- Проверьте роль **Cloud Run Invoker** у сервисного аккаунта.
+
+**Задача падает?**
+- Проверьте логи в консоли Cloud Run.
+- Убедитесь, что все переменные окружения прописаны в настройках Job.
+
+**Не приходят вебхуки?**
+- Проверьте доступность вашего URL из облака GCP.
+- Проверьте логи задачи на наличие ошибок доставки вебхуков.
+- Убедитесь, что ваш сервер поддерживает POST-запросы.
+
+---
+
+**Примечание:** Использование Cloud Run Jobs опционально. Если они не настроены, все запросы будут обрабатываться сервисом в обычном режиме.

@@ -1,109 +1,109 @@
-# Installing on Digital Ocean
+# Установка на Digital Ocean
 
-This guide walks you through deploying the No-Code Architects Toolkit API on Digital Ocean's App Platform.
+Это руководство поможет вам развернуть No-Code Architects Toolkit API на платформе Digital Ocean App Platform.
 
-## Prerequisites
+## Предварительные условия
 
-- A Digital Ocean account ([Sign up here](https://www.digitalocean.com/))
-- Basic familiarity with Digital Ocean App Platform
-- A credit/debit card for billing (you'll only be charged for what you use)
+- Аккаунт Digital Ocean ([Зарегистрироваться здесь](https://www.digitalocean.com/))
+- Базовое знакомство с Digital Ocean App Platform
+- Кредитная/дебетовая карта для оплаты (оплата только за фактическое использование)
 
-## Step 1: Create a New Project
+## Шаг 1: Создание нового проекта
 
-1. Sign in to your Digital Ocean account
-2. Create a new project or select an existing one
-3. This will organize your resources for the NCA Toolkit
+1. Войдите в свой аккаунт Digital Ocean.
+2. Создайте новый проект или выберите существующий.
+3. Это поможет организовать ваши ресурсы для NCA Toolkit.
 
-## Step 2: Create a Digital Ocean Space
+## Шаг 2: Создание Digital Ocean Space
 
-You'll need to create a Space (Digital Ocean's object storage) for the toolkit to store processed files:
+Вам потребуется создать Space (объектное хранилище Digital Ocean) для хранения обработанных файлов:
 
-1. Navigate to **Spaces Object Storage** in the Digital Ocean dashboard
-2. Click **Create a Space**
-3. Select a region (e.g., New York)
-4. Give your bucket a name (e.g., `nca-toolkit-bucket`)
-5. Select your project
-6. Click **Create Space**
+1. Перейдите в раздел **Spaces Object Storage** в панели управления Digital Ocean.
+2. Нажмите **Create a Space**.
+3. Выберите регион (например, New York).
+4. Укажите имя вашего бакета (например, `nca-toolkit-bucket`).
+5. Выберите ваш проект.
+6. Нажмите **Create Space**.
 
-## Step 3: Generate API Keys for Your Space
+## Шаг 3: Генерация ключей API для вашего Space
 
-1. From your new Space, go to **Settings**
-2. Click **Create Access Key**
-3. Select **Full Access**
-4. Give your key a name (e.g., `nca-toolkit-key`)
-5. Click **Create Access Key**
-6. **IMPORTANT**: Save both the Access Key and Secret Key shown - you will only see them once!
-7. Also copy the Space URL (endpoint) for use in the next step
+1. В вашем новом Space перейдите в **Settings**.
+2. Нажмите **Create Access Key**.
+3. Выберите **Full Access**.
+4. Дайте ключу имя (например, `nca-toolkit-key`).
+5. Нажмите **Create Access Key**.
+6. **ВАЖНО**: Сохраните оба ключа (Access Key и Secret Key) — они будут показаны только один раз!
+7. Также скопируйте Space URL (endpoint) для использования на следующем шаге.
 
-## Step 4: Deploy the App
+## Шаг 4: Развертывание приложения
 
-1. From your Digital Ocean dashboard, click **Create** and select **App**
-2. Choose **Container Image** as the deployment source
-3. Select **Docker Hub** for the repository
-4. Enter `stephengpope/no-code-architects-toolkit` as the image name
-5. Enter `latest` for the image tag
-6. Click **Next**
-7. If needed, edit the name to remove any extra dashes (Digital Ocean may show an error for long names)
-8. Choose **Web Service** as the service type
+1. В панели управления Digital Ocean нажмите **Create** и выберите **App**.
+2. Выберите **Container Image** как источник развертывания.
+3. Выберите **Docker Hub** для репозитория.
+4. Введите `stephengpope/no-code-architects-toolkit` в качестве имени образа.
+5. Введите `latest` в качестве тега образа.
+6. Нажмите **Next**.
+7. Если нужно, отредактируйте имя, удалив лишние тире (Digital Ocean может выдать ошибку при слишком длинном названии).
+8. Выберите **Web Service** в качестве типа сервиса.
 
-## Step 5: Configure Resources
+## Шаг 5: Настройка ресурсов
 
-1. Select a plan with adequate resources for your needs:
-   - For testing, a $50/month instance provides good performance
-   - For smaller workloads, you can select a smaller instance
-   - Note: You're only charged for the time the server is running
-2. Set Containers to 1
-3. Close the resource selection dialog
+1. Выберите тарифный план с ресурсами, соответствующими вашим нуждам:
+   - Для тестирования план за $50/месяц обеспечивает хорошую производительность.
+   - Для небольших нагрузок можно выбрать инстанс поменьше.
+   - Примечание: Оплата только за время работы сервера.
+2. Установите количество контейнеров на 1.
+3. Закройте диалог выбора ресурсов.
 
-## Step 6: Configure Environment Variables
+## Шаг 6: Настройка переменных окружения
 
-Add the following environment variables exactly as shown (be careful with underscores vs. dashes and avoid any leading/trailing spaces):
+Добавьте следующие переменные окружения точно так, как показано (будьте внимательны с подчеркиваниями и дефисами, избегайте пробелов):
 
-1. `API_KEY`: Your API key (e.g., `test123` for testing - change for production)
-2. `S3_ENDPOINT_URL`: The URL of your Space (copied from Step 3)
-3. `S3_ACCESS_KEY`: The access key from Step 3
-4. `S3_SECRET_KEY`: The secret key from Step 3
-5. `S3_BUCKET_NAME`: The name of your Space bucket (e.g., `nca-toolkit-bucket`)
-6. `S3_REGION`: The region code of your Space (e.g., `NYC3` for New York)
+1. `API_KEY`: Ваш API ключ (например, `test123` для тестов — смените для продакшена).
+2. `S3_ENDPOINT_URL`: URL вашего Space (скопированный в Шаге 3).
+3. `S3_ACCESS_KEY`: Access key из Шага 3.
+4. `S3_SECRET_KEY`: Secret key из Шага 3.
+5. `S3_BUCKET_NAME`: Имя вашего бакета (например, `nca-toolkit-bucket`).
+6. `S3_REGION`: Код региона вашего Space (например, `NYC3` для New York).
 
-## Step 7: Finalize and Deploy
+## Шаг 7: Финализация и развертывание
 
-1. For Deployment Region, select a region close to your location (e.g., San Francisco)
-2. You can use the default app name or choose a custom name
-3. Click **Create Resource**
-4. Wait for the deployment to complete (this may take a few minutes)
-   - You may need to refresh the page to see updates
+1. Для региона развертывания выберите ближайший к вам (например, San Francisco).
+2. Можно оставить имя приложения по умолчанию или выбрать свое.
+3. Нажмите **Create Resource**.
+4. Дождитесь завершения развертывания (это может занять несколько минут).
+   - Возможно, потребуется обновить страницу, чтобы увидеть изменения.
 
-## Step 8: Test Your Deployment
+## Шаг 8: Тестирование развертывания
 
-### Using Postman
+### Использование Postman
 
-1. Sign up for or log in to [Postman](https://www.postman.com/)
-2. Import the [NCA Toolkit Postman Collection](https://bit.ly/49Gkh61)
-3. Fork the collection to your workspace
-4. Create a new environment:
-   - Name it "Digital Ocean" or similar
-   - Add a variable `x-api-key` with the value matching your API_KEY (e.g., `test123`)
-   - Add a variable `base_url` with the value of your app's URL (shown in the Digital Ocean dashboard)
-   - Save the environment
-5. In the collection, navigate to the `toolkit/authenticate` endpoint and click Send
-6. If you receive a success response, your deployment is working correctly
-7. Then test the `toolkit/test` endpoint to verify complete functionality
+1. Зарегистрируйтесь или войдите в [Postman](https://www.postman.com/).
+2. Импортируйте [NCA Toolkit Postman Collection](https://bit.ly/49Gkh61).
+3. Создайте копию коллекции (fork) в свое рабочее пространство.
+4. Создайте новое окружение (environment):
+   - Назовите его "Digital Ocean" или похоже.
+   - Добавьте переменную `x-api-key` со значением вашего API_KEY (например, `test123`).
+   - Добавьте переменную `base_url` со значением URL вашего приложения (отображается в панели Digital Ocean).
+   - Сохраните окружение.
+5. В коллекции перейдите к эндпоинту `toolkit/authenticate` и нажмите Send.
+6. Если получен успешный ответ, значит установка прошла корректно.
+7. Затем протестируйте `toolkit/test` для проверки полной функциональности.
 
-## Monitoring and Management
+## Мониторинг и управление
 
-- **Overview**: View basic information about your app
-- **Insights**: Monitor CPU and memory usage
-- **Runtime Logs**: View logs of API calls and server activity
-- **Console**: Access the server's command line (rarely needed)
-- **Settings**: Modify your app's configuration
+- **Overview**: Общая информация о приложении.
+- **Insights**: Мониторинг использования CPU и памяти.
+- **Runtime Logs**: Просмотр логов вызовов API и активности сервера.
+- **Console**: Доступ к командной строке сервера (требуется редко).
+- **Settings**: Изменение конфигурации приложения.
 
-## Next Steps
+## Следующие шаги
 
-Now that you have successfully deployed the NCA Toolkit API, you can:
-- Explore all the available endpoints in the Postman collection
-- Integrate the API with your applications
-- Consider securing your API key with a more complex value
-- Scale your resources up or down based on your usage requirements
+Теперь, когда вы успешно развернули NCA Toolkit API, вы можете:
+- Изучить все доступные эндпоинты в коллекции Postman.
+- Интегрировать API в свои приложения.
+- Сменить API ключ на более сложный для безопасности.
+- Масштабировать ресурсы в зависимости от нагрузки.
 
-Remember, Digital Ocean charges based on usage, so you can always delete the app when you're not using it to save costs.
+Помните, что Digital Ocean списывает средства за использование, поэтому вы всегда можете удалить приложение, когда оно не нужно, для экономии.

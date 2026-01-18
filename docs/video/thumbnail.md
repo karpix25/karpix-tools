@@ -1,30 +1,30 @@
-# Video Thumbnail Generation API
+# API генерации миниатюр (превью) видео
 
-## Overview
+## Обзор
 
-The `/v1/video/thumbnail` endpoint allows users to extract a thumbnail image from a specific timestamp in a video. This endpoint is part of the video processing capabilities of the API, which includes other features like video concatenation and captioning. The endpoint processes the request asynchronously using a queue system, uploads the generated thumbnail to cloud storage, and returns the URL of the uploaded image.
+Эндпоинт `/v1/video/thumbnail` позволяет пользователям извлекать изображение (миниатюру) из видео по указанной временной метке. Этот эндпоинт является частью возможностей обработки видео API. Запросы обрабатываются асинхронно с использованием системы очередей, сгенерированная миниатюра загружается в облачное хранилище, и возвращается URL-адрес загруженного изображения.
 
-## Endpoint
+## Эндпоинт (Endpoint)
 
 - **URL**: `/v1/video/thumbnail`
-- **Method**: `POST`
+- **Метод**: `POST`
 
-## Request
+## Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key`: Required. Your API authentication key.
+- `x-api-key`: Обязательно. Ваш ключ авторизации API.
 
-### Body Parameters
+### Параметры тела запроса
 
-| Parameter | Type | Required | Description |
+| Параметр | Тип | Обязательно | Описание |
 |-----------|------|----------|-------------|
-| `video_url` | string (URI format) | Yes | URL of the video from which to extract the thumbnail |
-| `second` | number (minimum: 0) | No | Timestamp in seconds at which to extract the thumbnail (defaults to 0) |
-| `webhook_url` | string (URI format) | No | URL to receive the processing result asynchronously |
-| `id` | string | No | Custom identifier for tracking the request |
+| `video_url` | string (формат URI) | Да | URL видео, из которого нужно извлечь миниатюру |
+| `second` | number (минимум: 0) | Нет | Временная метка в секундах (по умолчанию 0) |
+| `webhook_url` | string (формат URI) | Нет | URL для асинхронного получения результата |
+| `id` | string | Нет | Пользовательский идентификатор запроса |
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -35,7 +35,7 @@ The `/v1/video/thumbnail` endpoint allows users to extract a thumbnail image fro
 }
 ```
 
-### Example cURL Command
+### Пример команды cURL
 
 ```bash
 curl -X POST \
@@ -50,11 +50,11 @@ curl -X POST \
   }'
 ```
 
-## Response
+## Ответ
 
-### Immediate Response (Status Code: 202)
+### Немедленный ответ (Код состояния: 202)
 
-When a webhook URL is provided, the API immediately returns a 202 Accepted response and processes the request asynchronously:
+При указании URL вебхука API немедленно возвращает ответ 202 Accepted:
 
 ```json
 {
@@ -70,9 +70,9 @@ When a webhook URL is provided, the API immediately returns a 202 Accepted respo
 }
 ```
 
-### Success Response (Status Code: 200)
+### Успешный ответ (Код состояния: 200)
 
-When no webhook URL is provided or when the webhook is called after processing:
+Когда вебхук не указан или при вызове вебхука после обработки:
 
 ```json
 {
@@ -91,9 +91,9 @@ When no webhook URL is provided or when the webhook is called after processing:
 }
 ```
 
-### Error Responses
+### Ответы с ошибками
 
-#### Invalid Request (Status Code: 400)
+#### Некорректный запрос (Код состояния: 400)
 
 ```json
 {
@@ -103,7 +103,7 @@ When no webhook URL is provided or when the webhook is called after processing:
 }
 ```
 
-#### Queue Full (Status Code: 429)
+#### Очередь заполнена (Код состояния: 429)
 
 ```json
 {
@@ -118,7 +118,7 @@ When no webhook URL is provided or when the webhook is called after processing:
 }
 ```
 
-#### Server Error (Status Code: 500)
+#### Ошибка сервера (Код состояния: 500)
 
 ```json
 {
@@ -133,33 +133,32 @@ When no webhook URL is provided or when the webhook is called after processing:
 }
 ```
 
-## Error Handling
+## Обработка ошибок
 
-The endpoint handles various error scenarios:
+Эндпоинт обрабатывает различные сценарии ошибок:
 
-- **Missing Required Parameters**: Returns a 400 error if `video_url` is missing.
-- **Invalid Parameter Format**: Returns a 400 error if parameters don't match the expected format (e.g., invalid URLs).
-- **Queue Capacity**: Returns a 429 error if the processing queue is full.
-- **Processing Errors**: Returns a 500 error if there are issues during thumbnail extraction or upload.
+- **Отсутствие обязательных параметров**: Ошибка 400, если нет `video_url`.
+- **Некорректный формат параметров**: Ошибка 400 при неверном формате (например, неверный URL).
+- **Вместимость очереди**: Ошибка 429, если очередь заполнена.
+- **Ошибки обработки**: Ошибка 500 при проблемах извлечения или загрузки превью.
 
-## Usage Notes
+## Примечания по использованию
 
-1. **Asynchronous Processing**: For long-running operations, provide a `webhook_url` to receive the result asynchronously.
-2. **Timestamp Selection**: Choose an appropriate `second` value to capture a meaningful frame from the video.
-3. **Request Tracking**: Use the `id` parameter to track your requests across your systems.
-4. **Queue Management**: The API uses a queue system with configurable maximum length (set by the `MAX_QUEUE_LENGTH` environment variable).
+1. **Асинхронная обработка**: Используйте `webhook_url` для длительных операций.
+2. **Выбор временной метки**: Выбирайте подходящее значение `second` для получения качественного кадра.
+3. **Отслеживание запросов**: Используйте `id` для сопоставления запросов в своих системах.
+4. **Управление очередью**: API использует систему очередей с настраиваемой макс. длиной (переменная `MAX_QUEUE_LENGTH`).
 
-## Common Issues
+## Общие проблемы
 
-1. **Inaccessible Video URLs**: Ensure the video URL is publicly accessible or has proper authentication.
-2. **Invalid Timestamp**: If the specified second exceeds the video duration, the API may use the last frame or return an error.
-3. **Webhook Failures**: If your webhook endpoint is unavailable, you won't receive the processing result.
-4. **Large Videos**: Processing very large videos may take longer and could time out.
+1. **Недоступные URL видео**: Убедитесь, что URL доступен публично.
+2. **Неверная временная метка**: Если указанная секунда превышает длительность видео, может быть использован последний кадр или возвращена ошибка.
+3. **Сбои вебхуков**: Если ваш эндпоинт вебхука недоступен, вы не получите результат.
 
-## Best Practices
+## Лучшие практики
 
-1. **Use Webhooks for Long Videos**: Always use webhooks when processing large videos to avoid HTTP timeout issues.
-2. **Optimize Thumbnail Selection**: Choose meaningful timestamps for thumbnails (e.g., after intro sequences).
-3. **Error Handling**: Implement proper error handling in your application to manage API errors gracefully.
-4. **Rate Limiting**: Monitor the queue length in responses to avoid overwhelming the service.
-5. **Idempotent Requests**: Use the `id` parameter to make requests idempotent and avoid duplicate processing.
+1. **Используйте вебхуки для длинных видео** во избежание таймаутов HTTP.
+2. **Оптимизируйте выбор кадра** (например, после начальных титров).
+3. **Обработка ошибок**: Реализуйте корректную обработку ошибок в вашем приложении.
+4. **Ограничение частоты**: Следите за длиной очереди в ответах.
+5. **Идемпотентные запросы**: Используйте `id` во избежание дублирования обработки.

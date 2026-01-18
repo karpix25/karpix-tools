@@ -1,38 +1,38 @@
-# Video Cut Endpoint
+# Эндпоинт для нарезки видео
 
-## 1. Overview
+## 1. Обзор
 
-The `/v1/video/cut` endpoint is part of the Video API and allows users to cut specified segments from a video file with optional encoding settings. This endpoint fits into the overall API structure as a part of the version 1 (`v1`) routes, specifically under the `video` category.
+Эндпоинт `/v1/video/cut` является частью Video API и позволяет пользователям вырезать указанные сегменты из видеофайла с опциональными настройками кодирования. Этот эндпоинт вписывается в общую структуру API как часть маршрутов версии 1 (`v1`), в категории `video`.
 
-## 2. Endpoint
+## 2. Эндпоинт (Endpoint)
 
 ```
 POST /v1/video/cut
 ```
 
-## 3. Request
+## 3. Запрос
 
-### Headers
+### Заголовки (Headers)
 
-- `x-api-key` (required): The API key for authentication.
+- `x-api-key` (обязательно): Ключ API для аутентификации.
 
-### Body Parameters
+### Параметры тела запроса
 
-The request body must be a JSON object with the following properties:
+Тело запроса должно быть объектом JSON со следующими свойствами:
 
-- `video_url` (required, string): The URL of the video file to be cut.
-- `cuts` (required, array of objects): An array of cut segments, where each object has the following properties:
-  - `start` (required, string): The start time of the cut segment in the format `hh:mm:ss.ms`.
-  - `end` (required, string): The end time of the cut segment in the format `hh:mm:ss.ms`.
-- `video_codec` (optional, string): The video codec to use for encoding the output video. Default is `libx264`.
-- `video_preset` (optional, string): The video preset to use for encoding the output video. Default is `medium`.
-- `video_crf` (optional, number): The Constant Rate Factor (CRF) value for video encoding. Must be between 0 and 51. Default is 23.
-- `audio_codec` (optional, string): The audio codec to use for encoding the output video. Default is `aac`.
-- `audio_bitrate` (optional, string): The audio bitrate to use for encoding the output video. Default is `128k`.
-- `webhook_url` (optional, string): The URL to receive a webhook notification when the job is completed.
-- `id` (optional, string): A unique identifier for the request.
+- `video_url` (обязательно, строка): URL-адрес видеофайла, который нужно нарезать.
+- `cuts` (обязательно, массив объектов): Массив вырезаемых сегментов, где каждый объект имеет следующие свойства:
+  - `start` (обязательно, строка): Время начала сегмента в формате `чч:мм:сс.мс`.
+  - `end` (обязательно, строка): Время окончания сегмента в формате `чч:мм:сс.мс`.
+- `video_codec` (необязательно, строка): Видеокодек для кодирования выходного видео. По умолчанию `libx264`.
+- `video_preset` (необязательно, строка): Пресет видеокодека. По умолчанию `medium`.
+- `video_crf` (необязательно, число): Значение Constant Rate Factor (CRF). От 0 до 51. По умолчанию 23.
+- `audio_codec` (необязательно, строка): Аудиокодек. По умолчанию `aac`.
+- `audio_bitrate` (необязательно, строка): Битрейт аудио. По умолчанию `128k`.
+- `webhook_url` (необязательно, строка): URL-адрес для уведомления вехуком по завершении задачи.
+- `id` (необязательно, строка): Уникальный идентификатор запроса.
 
-### Example Request
+### Пример запроса
 
 ```json
 {
@@ -84,11 +84,11 @@ curl -X POST \
   }'
 ```
 
-## 4. Response
+## 4. Ответ
 
-### Success Response
+### Успешный ответ
 
-The response follows the general response format defined in the main application context (`app.py`). Here's an example of a successful response:
+Ответ соответствует общему формату ответа приложения (`app.py`). Пример успешного ответа:
 
 ```json
 {
@@ -108,9 +108,9 @@ The response follows the general response format defined in the main application
 }
 ```
 
-The `response` field contains the URL of the processed video file.
+Поле `response` содержит URL-адрес обработанного видеофайла.
 
-### Error Responses
+### Ответы с ошибками
 
 - **400 Bad Request**
 
@@ -121,7 +121,7 @@ The `response` field contains the URL of the processed video file.
   }
   ```
 
-  This error occurs when the request payload is missing required fields or contains invalid data.
+  Эта ошибка возникает, если в теле запроса отсутствуют обязательные поля или содержатся недействительные данные.
 
 - **401 Unauthorized**
 
@@ -132,7 +132,7 @@ The `response` field contains the URL of the processed video file.
   }
   ```
 
-  This error occurs when the provided `x-api-key` header is missing or invalid.
+  Ошибка возникает, если заголовок `x-api-key` отсутствует или недействителен.
 
 - **429 Too Many Requests**
 
@@ -149,7 +149,7 @@ The `response` field contains the URL of the processed video file.
   }
   ```
 
-  This error occurs when the maximum queue length has been reached, and the request cannot be processed immediately.
+  Ошибка возникает при достижении максимальной длины очереди.
 
 - **500 Internal Server Error**
 
@@ -160,38 +160,38 @@ The `response` field contains the URL of the processed video file.
   }
   ```
 
-  This error occurs when an unexpected error occurs during the video processing or encoding.
+  Ошибка возникает при непредвиденном сбое во время обработки видео.
 
-## 5. Error Handling
+## 5. Обработка ошибок
 
-The endpoint handles the following common errors:
+Эндпоинт обрабатывает следующие распространенные ошибки:
 
-- **Missing or invalid request parameters**: If any required parameters are missing or invalid, the endpoint returns a 400 Bad Request error with an appropriate error message.
-- **Invalid API key**: If the provided `x-api-key` header is missing or invalid, the endpoint returns a 401 Unauthorized error.
-- **Queue limit reached**: If the maximum queue length has been reached, the endpoint returns a 429 Too Many Requests error with the current queue length and the maximum queue length.
-- **Unexpected errors during video processing**: If an unexpected error occurs during the video processing or encoding, the endpoint returns a 500 Internal Server Error with a generic error message.
+- **Отсутствующие или недействительные параметры**: Если обязательные параметры отсутствуют или недействительны, возвращается ошибка 400 Bad Request с соответствующим сообщением.
+- **Недействительный ключ API**: Если заголовок `x-api-key` отсутствует или недействителен, возвращается ошибка 401 Unauthorized.
+- **Лимит очереди достигнут**: Если достигнута максимальная длина очереди, возвращается ошибка 429 Too Many Requests с информацией о текущем состоянии очереди.
+- **Непредвиденные ошибки**: При возникновении ошибки во время обработки или кодирования видео возвращается ошибка 500 Internal Server Error.
 
-The main application context (`app.py`) also includes error handling for the queue system and webhook notifications.
+Контекст приложения (`app.py`) также включает обработку ошибок для системы очередей и уведомлений вехуками.
 
-## 6. Usage Notes
+## 6. Примечания по использованию
 
-- The `video_url` parameter must be a valid URL that points to a video file accessible by the server.
-- The `cuts` parameter must be an array of objects, where each object represents a cut segment with a start and end time in the format `hh:mm:ss.ms`.
-- The optional encoding parameters (`video_codec`, `video_preset`, `video_crf`, `audio_codec`, `audio_bitrate`) allow you to customize the encoding settings for the output video file.
-- If the `webhook_url` parameter is provided, the server will send a webhook notification to the specified URL when the job is completed.
-- The `id` parameter can be used to associate the request with a unique identifier for tracking purposes.
+- Параметр `video_url` должен быть действительным URL-адресом, доступным с сервера.
+- Параметр `cuts` должен быть массивом объектов, каждый из которых представляет сегмент с временем начала и окончания в формате `чч:мм:сс.мс`.
+- Опциональные параметры кодирования (`video_codec`, `video_preset`, `video_crf`, `audio_codec`, `audio_bitrate`) позволяют настроить параметры выходного файла.
+- Если указан `webhook_url`, сервер отправит уведомление на этот адрес по завершении задачи.
+- Параметр `id` можно использовать для отслеживания запроса.
 
-## 7. Common Issues
+## 7. Общие проблемы
 
-- Providing an invalid or inaccessible `video_url`.
-- Specifying overlapping or invalid cut segments in the `cuts` parameter.
-- Providing invalid encoding settings that are not supported by the server.
-- Reaching the maximum queue length, which can cause requests to be rejected with a 429 Too Many Requests error.
+- Предоставление недействительного или недоступного `video_url`.
+- Пересекающиеся или недействительные сегменты в параметре `cuts`.
+- Использование неподдерживаемых настроек кодирования.
+- Достижение максимального лимита очереди.
 
-## 8. Best Practices
+## 8. Лучшие практики
 
-- Validate the `video_url` parameter before sending the request to ensure it points to a valid and accessible video file.
-- Ensure that the cut segments in the `cuts` parameter are correctly formatted and do not overlap or exceed the duration of the video.
-- Use the optional encoding parameters judiciously, as they can impact the processing time and output video quality.
-- Implement retry mechanisms for handling 429 Too Many Requests errors, as the queue length may fluctuate over time.
-- Monitor the webhook notifications or poll the server for job status updates to track the progress of long-running jobs.
+- Проверяйте доступность видео по `video_url` перед отправкой запроса.
+- Убедитесь, что сегменты в `cuts` отформатированы правильно, не пересекаются и не превышают длительность видео.
+- Используйте параметры кодирования осмотрительно, так как они влияют на время обработки и качество.
+- Реализуйте механизмы повторных попыток для обработки ошибок 429.
+- Мониторьте уведомления вебхуков для отслеживания прогресса длительных задач.
