@@ -20,9 +20,9 @@ import os
 import ffmpeg
 import logging
 import subprocess
-from faster_whisper import WhisperModel
+# from faster_whisper import WhisperModel <-- Moved inside key functions
 from datetime import timedelta
-import srt
+# import srt <-- Moved inside key functions
 import re
 from services.file_management import download_file
 from services.cloud_storage import upload_file  # Ensure this import is present
@@ -64,6 +64,7 @@ def rgb_to_ass_color(rgb_color):
 
 def generate_transcription(video_path, language='auto'):
     try:
+        from faster_whisper import WhisperModel
         # Load faster-whisper model with int8 quantization for CPU
         model = WhisperModel("large-v3-turbo", device="cpu", compute_type="int8")
         transcription_options = {
@@ -159,6 +160,7 @@ def process_subtitle_text(text, replace_dict, all_caps, max_words_per_line):
 
 def srt_to_transcription_result(srt_content):
     """Convert SRT content into a transcription-like structure for uniform processing."""
+    import srt
     subtitles = list(srt.parse(srt_content))
     segments = []
     for sub in subtitles:
@@ -739,6 +741,7 @@ def filter_subtitle_lines(sub_content, exclude_time_ranges, subtitle_type):
             filtered_lines.append(line)
         return "\n".join(filtered_lines)
     elif subtitle_type == 'srt':
+        import srt
         subtitles = list(srt.parse(sub_content))
         filtered = []
         for sub in subtitles:

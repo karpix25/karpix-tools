@@ -17,8 +17,8 @@
 
 
 import os
-from faster_whisper import WhisperModel
-import srt
+# from faster_whisper import WhisperModel  <-- Moved inside function
+# import srt  <-- Moved inside function
 from datetime import timedelta
 from services.file_management import download_file
 import logging
@@ -38,6 +38,9 @@ def process_transcription(media_url, output_type, max_chars=56, language=None,):
     logger.info(f"Downloaded media to local file: {input_filename}")
 
     try:
+        from faster_whisper import WhisperModel
+        import srt
+        
         # Load faster-whisper model with int8 quantization for CPU
         model = WhisperModel("large-v3-turbo", device="cpu", compute_type="int8")
         logger.info("Loaded Faster-Whisper large-v3-turbo model with int8 quantization")
