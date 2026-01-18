@@ -132,7 +132,15 @@ def discover_and_register_blueprints(app, base_dir='routes'):
             for name, obj in inspect.getmembers(module):
                 if isinstance(obj, Blueprint) and obj not in registered_blueprints:
                     pid = os.getpid()
-                    logger.info(f"PID {pid} Registering: {module_path}")
+                    # Log memory usage
+                    try:
+                        import psutil
+                        process = psutil.Process(pid)
+                        mem = process.memory_info().rss / 1024 / 1024
+                        logger.info(f"PID {pid} Registering: {module_path} [Mem: {mem:.2f} MB]")
+                    except ImportError:
+                        logger.info(f"PID {pid} Registering: {module_path}")
+                    
                     app.register_blueprint(obj)
                     registered_blueprints.add(obj)
             
