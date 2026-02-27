@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "esnext",
+    "rootDir": "src",
+    "outDir": "build",
+    "lib": [
+      "esnext"
+    ],
+    "types": [
+      "node"
+    ],
+    "sourceMap": true,
+    "declaration": true,
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "moduleDetection": "force"
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

@@ -1,4 +1,4 @@
-# Установка на Digital Ocean
+се# Установка на Digital Ocean
 
 Это руководство поможет вам развернуть No-Code Architects Toolkit API на платформе Digital Ocean App Platform.
 

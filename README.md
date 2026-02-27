@@ -120,6 +120,43 @@ API использует модель **Faster-Whisper Large-v3-Turbo** с оп�
 
 ---
 
+## Model Context Protocol (MCP)
+
+Karpix Tools теперь поддерживает **Model Context Protocol (MCP)**, что позволяет ИИ-ассистентам (таким как Claude Desktop) напрямую использовать все инструменты API.
+
+### Использование MCP
+
+Сервер MCP находится в директории `karpix-mcp-server`. Он предоставляет доступ ко всем 31 инструменту API через единый интерфейс.
+
+#### Настройка для Claude Desktop
+
+Добавьте следующую конфигурацию в ваш файл `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "karpix-tools": {
+      "command": "node",
+      "args": ["/Users/nadaraya/Downloads/karpix-tools-main _2/karpix-mcp-server/build/index.js"],
+      "env": {
+        "KARPIX_API_KEY": "ваш_api_ключ",
+        "KARPIX_BASE_URL": "http://localhost:8080"
+      }
+    }
+  }
+}
+```
+
+#### Сборка сервера
+
+```bash
+cd karpix-mcp-server
+npm install
+npm run build
+```
+
+---
+
 ## Сборка и запуск Docker
 
 ### Сборка Docker образа
