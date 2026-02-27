@@ -130,22 +130,28 @@ Karpix Tools теперь поддерживает **Model Context Protocol (MCP
 
 #### Настройка для Claude Desktop
 
-Добавьте следующую конфигурацию в ваш файл `claude_desktop_config.json`:
+Добавьте следующую конфигурацию в ваш файл `claude_desktop_config.json`. 
+
+> [!TIP]
+> Если вы переносите **Karpix API** на VPS, сам MCP-сервер лучше оставить на вашем локальном компьютере, просто изменив `KARPIX_BASE_URL` на адрес вашего сервера.
 
 ```json
 {
   "mcpServers": {
     "karpix-tools": {
       "command": "node",
-      "args": ["/Users/nadaraya/Downloads/karpix-tools-main _2/karpix-mcp-server/build/index.js"],
+      "args": ["/ПУТЬ/К/ВАШЕМУ/ПРОЕКТУ/karpix-mcp-server/build/index.js"],
       "env": {
         "KARPIX_API_KEY": "ваш_api_ключ",
-        "KARPIX_BASE_URL": "http://localhost:8080"
+        "KARPIX_BASE_URL": "http://IP_ВАШЕГО_VPS:8080"
       }
     }
   }
 }
 ```
+
+> [!IMPORTANT]
+> В поле `args` должен быть **полный абсолютный путь** к файлу `index.js` на том компьютере, где запущен Claude Desktop.
 
 #### Сборка сервера
 

@@ -40,7 +40,36 @@ MCP-сервер для архитектуры **Model Context Protocol**, пр�
   "mcpServers": {
     "karpix-tools": {
       "command": "node",
-      "args": ["/Users/nadaraya/Downloads/karpix-tools-main _2/karpix-mcp-server/build/index.js"],
+      "args": ["/ПУТЬ/К/ВАШЕМУ/ПРОЕКТУ/karpix-mcp-server/build/index.js"],
+      "env": {
+        "KARPIX_API_KEY": "ваш_api_ключ",
+        "KARPIX_BASE_URL": "http://IP_ВАШЕГО_VPS:8080"
+      }
+    }
+  }
+}
+```
+
+## Работа с VPS
+
+Если вы разворачиваете API на удаленном сервере (VPS), у вас есть два основных варианта:
+
+### Вариант А: Локальный MCP + Удаленный API (Рекомендуется)
+Вы оставляете MCP-сервер на своем компьютере, но указываете адрес VPS в `KARPIX_BASE_URL`. Это самый простой способ, так как Claude Desktop может напрямую запускать локальный `node`.
+
+### Вариант Б: MCP на VPS через SSH (Продвинутый)
+Если вы хотите, чтобы сам MCP-сервер работал на VPS, вам нужно использовать `ssh` в качестве команды запуска:
+
+```json
+{
+  "mcpServers": {
+    "karpix-tools": {
+      "command": "ssh",
+      "args": [
+        "-t", 
+        "ваш_пользователь@IP_ВАШЕГО_VPS", 
+        "node /путь/на/сервере/karpix-mcp-server/build/index.js"
+      ],
       "env": {
         "KARPIX_API_KEY": "ваш_api_ключ",
         "KARPIX_BASE_URL": "http://localhost:8080"
@@ -49,6 +78,7 @@ MCP-сервер для архитектуры **Model Context Protocol**, пр�
   }
 }
 ```
+*Примечание: Для этого варианта должна быть настроена авторизация по SSH-ключам без пароля.*
 
 ## Список доступных инструментов
 
