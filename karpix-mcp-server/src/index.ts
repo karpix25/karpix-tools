@@ -1,13 +1,17 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import {
     CallToolRequestSchema,
     ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { KarpixClient } from "./client.js";
+import express from "express";
 
 const API_KEY = process.env.KARPIX_API_KEY;
 const BASE_URL = process.env.KARPIX_BASE_URL || "http://localhost:8080";
+const TRANSPORT = process.env.MCP_TRANSPORT || "stdio"; // "stdio" or "sse"
+const PORT = process.env.PORT || 3000;
 
 if (!API_KEY) {
     console.error("KARPIX_API_KEY environment variable is required");
@@ -505,9 +509,32 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 async function main() {
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
-    console.error("Karpix Tools MCP Server running on stdio");
+    if (TRANSPORT === "sse") {
+        const app = express();
+        let transport: SSEServerTransport | null = null;
+
+        app.get("/sse", async (req, res) => {
+            console.log("New SSE connection");
+            transport = new SSEServerTransport("/messages", res);
+            await server.connect(transport);
+        });
+
+        app.post("/messages", async (req, res) => {
+            if (transport) {
+                await transport.handlePostMessage(req, res);
+            } else {
+                res.status(400).send("No active SSE session");
+            }
+        });
+
+        app.listen(PORT, () => {
+            console.error(`Karpix Tools MCP Server running on SSE at http://localhost:${PORT}/sse`);
+        });
+    } else {
+        const transport = new StdioServerTransport();
+        await server.connect(transport);
+        console.error("Karpix Tools MCP Server running on stdio");
+    }
 }
 
 main().catch((error) => {
