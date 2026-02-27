@@ -36,6 +36,23 @@ services:
       - storage:/var/www/html/storage/app
       - logs:/var/www/html/storage/logs
     restart: unless-stopped
+  mcp-server:
+    build:
+      context: ./karpix-mcp-server
+      dockerfile: Dockerfile
+    environment:
+      - KARPIX_API_KEY=${API_KEY}
+      - KARPIX_BASE_URL=http://ncat:8080
+      - MCP_TRANSPORT=sse
+      - PORT=3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mcp.rule=Host(`mcp.${APP_DOMAIN}`)
+      - traefik.http.routers.mcp.tls=true
+      - traefik.http.routers.mcp.entrypoints=web,websecure
+      - traefik.http.routers.mcp.tls.certresolver=mytlschallenge
+      - traefik.http.services.mcp.loadbalancer.server.port=3000
+    restart: unless-stopped
 
 volumes:
   traefik_data:
