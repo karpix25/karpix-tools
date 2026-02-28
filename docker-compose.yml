@@ -1,6 +1,8 @@
 services:
   ncat:
-    image: stephengpope/no-code-architects-toolkit:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     env_file:
       - .env
     environment:
