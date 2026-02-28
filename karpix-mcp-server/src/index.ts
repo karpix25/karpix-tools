@@ -207,7 +207,7 @@ const TOOLS = [
     },
     {
         name: "ffmpeg_compose",
-        description: "Advanced FFmpeg composition. CRITICAL: For multiple filters, use SEQUENTIAL chaining with unique labels. Example: '[0:v][1:v]overlay...[t1];[t1][2:v]overlay...[out]'. Each filter must take its primary input from the result of the previous filter. If you define a final label like [out], you MUST provide it in the 'map' property of the output object.",
+        description: "Advanced multi-track FFmpeg composition. \nCRITICAL SYNTAX RULES:\n1. PARAMS: Use ':' to separate params in one filter (e.g., 'trim=start=10:end=20'). DO NOT use commas.\n2. CHAINING: Use ',' to chain filters for one stream (e.g., 'trim=...,scale=...').\n3. BLOCKS: Use ';' to separate filter chains.\n4. INPUTS: No separate 'inputs' key in JSON. Define inputs directly in the filter string (e.g., '[0:v][1:v]overlay...').\n5. OUTPUTS: Final labels (e.g., '[out]') MUST be mapped in the 'map' property of the output object.\n6. SEQUENTIAL: Each filter must consume the previous label to avoid unconnected outputs.\nEXAMPLE:\nfilters: [\n  { 'filter': '[0:v]trim=start=0:end=5,setpts=PTS-STARTPTS[v0]' },\n  { 'filter': '[1:v]trim=start=2:end=7,setpts=PTS-STARTPTS[v1]' },\n  { 'filter': '[v0][v1]concat=n=2:v=1:a=0[out]' }\n],\noutputs: [{ 'map': '[out]', 'options': [{ 'option': '-c:v', 'argument': 'libx264' }] }]",
         inputSchema: {
             type: "object",
             properties: {
@@ -223,16 +223,24 @@ const TOOLS = [
                     items: {
                         type: "object",
                         properties: {
-                            map: { type: "string", description: "The label from filtergraph to map to this file (e.g. '[out]')." },
+                            map: { type: "string", description: "The final label from filtergraph (e.g. '[out]'). Mandatory if filters are used." },
                             options: { type: "array", items: { type: "object" } },
                         },
                         required: ["options"],
+                        additionalProperties: false
                     }
                 },
                 filters: {
                     type: "array",
-                    description: "Filter strings. Sequence matters. Use unique labels for intermediate outputs.",
-                    items: { type: "object" }
+                    description: "Filter strings. MUST use unique labels. Use ':' for options, ',' for chain, ';' for blocks.",
+                    items: {
+                        type: "object",
+                        properties: {
+                            filter: { type: "string", description: "The complete filter string including brackets." }
+                        },
+                        required: ["filter"],
+                        additionalProperties: false
+                    }
                 },
                 global_options: { type: "array", description: "Global FFmpeg flags.", items: { type: "object" } },
             },
