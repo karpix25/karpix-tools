@@ -69,6 +69,7 @@ logger = logging.getLogger(__name__)
             "items": {
                 "type": "object",
                 "properties": {
+                    "map": {"type": "string"},
                     "options": {
                         "type": "array",
                         "items": {

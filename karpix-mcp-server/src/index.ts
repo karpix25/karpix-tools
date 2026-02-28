@@ -42,43 +42,43 @@ const TOOLS = [
     // --- Toolkit & Auth ---
     {
         name: "toolkit_test",
-        description: "Test API connectivity and setup",
+        description: "Verify server health and connectivity. Returns version and status.",
         inputSchema: { type: "object", properties: {} },
     },
     {
         name: "toolkit_authenticate",
-        description: "Verify API key validity",
+        description: "Check if the currently configured API key is valid.",
         inputSchema: { type: "object", properties: {} },
     },
     {
         name: "toolkit_job_status",
-        description: "Check the status and results of a specific job",
+        description: "Retrieve complete results and status for a specific job ID.",
         inputSchema: {
             type: "object",
             properties: {
-                job_id: { type: "string", description: "Unique job ID to check" },
+                job_id: { type: "string", description: "The UUID of the job." },
             },
             required: ["job_id"],
         },
     },
     {
         name: "toolkit_jobs_status",
-        description: "Get the status of all jobs within a specified time range",
+        description: "Query statuses of all recent jobs in a time window.",
         inputSchema: {
             type: "object",
             properties: {
-                since_seconds: { type: "integer", default: 600, description: "Time range in seconds" },
+                since_seconds: { type: "integer", default: 600, description: "Seconds to look back." },
             },
         },
     },
     {
         name: "execute_python",
-        description: "Execute Python code in a controlled environment",
+        description: "Runs arbitrary Python code in a remote sandbox and returns stdout/stderr.",
         inputSchema: {
             type: "object",
             properties: {
-                code: { type: "string", description: "Python code to execute" },
-                timeout: { type: "integer", minimum: 1, maximum: 300, default: 30 },
+                code: { type: "string", description: "Python source code." },
+                timeout: { type: "integer", minimum: 1, maximum: 600, default: 30 },
             },
             required: ["code"],
         },
@@ -87,13 +87,13 @@ const TOOLS = [
     // --- Video Operations ---
     {
         name: "video_trim",
-        description: "Trim a video by removing specified portions from the beginning and/or end",
+        description: "Extract a portion of a video. Use HH:MM:SS or MM:SS format for start/end.",
         inputSchema: {
             type: "object",
             properties: {
                 video_url: { type: "string", format: "uri" },
-                start: { type: "string", description: "Start time (HH:MM:SS)" },
-                end: { type: "string", description: "End time (HH:MM:SS)" },
+                start: { type: "string", description: "Timestamp to start from." },
+                end: { type: "string", description: "Timestamp to end at." },
                 video_codec: { type: "string", default: "libx264" },
                 video_preset: { type: "string", default: "medium" },
                 video_crf: { type: "number", minimum: 0, maximum: 51, default: 23 },
@@ -105,7 +105,7 @@ const TOOLS = [
     },
     {
         name: "video_cut",
-        description: "Cut specified segments from a video file",
+        description: "Remove multiple segments from a video. The 'cuts' array defines parts to KEEP.",
         inputSchema: {
             type: "object",
             properties: {
@@ -115,8 +115,8 @@ const TOOLS = [
                     items: {
                         type: "object",
                         properties: {
-                            start: { type: "string" },
-                            end: { type: "string" },
+                            start: { type: "string", description: "HH:MM:SS" },
+                            end: { type: "string", description: "HH:MM:SS" },
                         },
                         required: ["start", "end"],
                     },
@@ -129,7 +129,7 @@ const TOOLS = [
     },
     {
         name: "video_split",
-        description: "Split a video file into multiple segments",
+        description: "Divide a video into several files at specified time points.",
         inputSchema: {
             type: "object",
             properties: {
@@ -151,7 +151,7 @@ const TOOLS = [
     },
     {
         name: "video_concatenate",
-        description: "Combine multiple videos into one",
+        description: "Stitch multiple video URLs together in order. Must have same dimensions/codecs for best results.",
         inputSchema: {
             type: "object",
             properties: {
@@ -162,7 +162,7 @@ const TOOLS = [
                         properties: { video_url: { type: "string", format: "uri" } },
                         required: ["video_url"],
                     },
-                    minItems: 1,
+                    minItems: 2,
                 },
             },
             required: ["video_urls"],
@@ -170,19 +170,19 @@ const TOOLS = [
     },
     {
         name: "video_thumbnail",
-        description: "Extract a thumbnail from a video at a specific time",
+        description: "Capture a static image from a video at a specific second.",
         inputSchema: {
             type: "object",
             properties: {
                 video_url: { type: "string", format: "uri" },
-                second: { type: "number", minimum: 0, default: 0 },
+                second: { type: "number", minimum: 0, default: 0, description: "Capture time in seconds." },
             },
             required: ["video_url"],
         },
     },
     {
         name: "video_extract_keyframes",
-        description: "Extract keyframes from a video file",
+        description: "Identifies and extracts i-frames (keyframes) from a video.",
         inputSchema: {
             type: "object",
             properties: {
@@ -193,28 +193,48 @@ const TOOLS = [
     },
     {
         name: "video_caption",
-        description: "Burn captions (ASS/SRT) into a video",
+        description: "Hardcode text subtitles into a video stream. Supports styling.",
         inputSchema: {
             type: "object",
             properties: {
                 video_url: { type: "string", format: "uri" },
-                captions: { type: "string", description: "Subtitle content" },
+                captions: { type: "string", description: "The transcription or subtitle text content." },
                 language: { type: "string", default: "auto" },
-                settings: { type: "object" },
+                settings: { type: "object", description: "Visual styling (font, color, position)." },
             },
-            required: ["video_url"],
+            required: ["video_url", "captions"],
         },
     },
     {
         name: "ffmpeg_compose",
-        description: "Advanced FFmpeg composition with multiple inputs and filters",
+        description: "Advanced FFmpeg composition. CRITICAL: For multiple filters, use SEQUENTIAL chaining with unique labels. Example: '[0:v][1:v]overlay...[t1];[t1][2:v]overlay...[out]'. Each filter must take its primary input from the result of the previous filter. If you define a final label like [out], you MUST provide it in the 'map' property of the output object.",
         inputSchema: {
             type: "object",
             properties: {
-                inputs: { type: "array", items: { type: "object" } },
-                outputs: { type: "array", items: { type: "object" } },
-                filters: { type: "array", items: { type: "object" } },
-                global_options: { type: "array", items: { type: "object" } },
+                inputs: {
+                    type: "array",
+                    description: "Input track URLs and processing options.",
+                    items: { type: "object" }
+                },
+                outputs: {
+                    type: "array",
+                    description: "Requested output streams and codecs.",
+                    minItems: 1,
+                    items: {
+                        type: "object",
+                        properties: {
+                            map: { type: "string", description: "The label from filtergraph to map to this file (e.g. '[out]')." },
+                            options: { type: "array", items: { type: "object" } },
+                        },
+                        required: ["options"],
+                    }
+                },
+                filters: {
+                    type: "array",
+                    description: "Filter strings. Sequence matters. Use unique labels for intermediate outputs.",
+                    items: { type: "object" }
+                },
+                global_options: { type: "array", description: "Global FFmpeg flags.", items: { type: "object" } },
             },
             required: ["inputs", "outputs"],
         },
@@ -223,7 +243,7 @@ const TOOLS = [
     // --- Audio Operations ---
     {
         name: "audio_concatenate",
-        description: "Combine multiple audio files into one",
+        description: "Combines multiple audio source files into a single continuous track.",
         inputSchema: {
             type: "object",
             properties: {
@@ -234,7 +254,7 @@ const TOOLS = [
                         properties: { audio_url: { type: "string", format: "uri" } },
                         required: ["audio_url"],
                     },
-                    minItems: 1,
+                    minItems: 2,
                 },
             },
             required: ["audio_urls"],
@@ -242,28 +262,28 @@ const TOOLS = [
     },
     {
         name: "audio_mixing",
-        description: "Mix a video's audio with an external audio file",
+        description: "Overlay an external audio track onto a video. Useful for background music.",
         inputSchema: {
             type: "object",
             properties: {
                 video_url: { type: "string", format: "uri" },
                 audio_url: { type: "string", format: "uri" },
-                video_vol: { type: "number", minimum: 0, maximum: 100, default: 100 },
-                audio_vol: { type: "number", minimum: 0, maximum: 100, default: 100 },
-                output_length: { type: "string", enum: ["video", "audio"], default: "video" },
+                video_vol: { type: "number", minimum: 0, maximum: 1, default: 1, description: "Volume level of original video audio (0-1)." },
+                audio_vol: { type: "number", minimum: 0, maximum: 1, default: 1, description: "Volume level of overlay audio (0-1)." },
+                output_length: { type: "string", enum: ["video", "audio"], default: "video", description: "Whether to trim to video length or audio length." },
             },
             required: ["video_url", "audio_url"],
         },
     },
     {
         name: "audio_media_to_mp3",
-        description: "Convert any media file to MP3 format",
+        description: "Converts any media (including video) into a high-quality (192kbps+) MP3 audio file.",
         inputSchema: {
             type: "object",
             properties: {
                 media_url: { type: "string", format: "uri" },
-                bitrate: { type: "string", pattern: "^[0-9]+k$", default: "128k" },
-                sample_rate: { type: "number" },
+                bitrate: { type: "string", pattern: "^[0-9]+k$", default: "192k" },
+                sample_rate: { type: "number", default: 44100 },
             },
             required: ["media_url"],
         },
@@ -272,30 +292,35 @@ const TOOLS = [
     // --- Image Operations ---
     {
         name: "image_to_video",
-        description: "Create a video with a zoom/pan effect from a static image",
+        description: "Turn a single image into a video clip with dynamic zoom/pan motion.",
         inputSchema: {
             type: "object",
             properties: {
                 image_url: { type: "string", format: "uri" },
-                length: { type: "number", minimum: 0.1, maximum: 400, default: 5 },
+                length: { type: "number", minimum: 1, maximum: 60, default: 5, description: "Duration in seconds." },
                 frame_rate: { type: "integer", minimum: 15, maximum: 60, default: 30 },
-                zoom_speed: { type: "number", minimum: 0, maximum: 100, default: 3 },
+                zoom_speed: { type: "number", minimum: 0, maximum: 10, default: 3 },
             },
             required: ["image_url"],
         },
     },
     {
         name: "image_screenshot_webpage",
-        description: "Take a screenshot of a webpage using Playwright",
+        description: "Render a webpage and capture a screenshot via Playwright. Supports WaitUntil conditions and custom CSS/JS.",
         inputSchema: {
             type: "object",
             properties: {
-                url: { type: "string", format: "uri" },
-                html: { type: "string" },
-                viewport_width: { type: "integer", default: 1280 },
-                viewport_height: { type: "integer", default: 720 },
-                full_page: { type: "boolean", default: false },
+                url: { type: "string", format: "uri", description: "Target URL." },
+                html: { type: "string", description: "HTML content to render directly." },
+                viewport_width: { type: "integer", default: 1920 },
+                viewport_height: { type: "integer", default: 1080 },
+                full_page: { type: "boolean", default: false, description: "Capture beyond the fold." },
                 format: { type: "string", enum: ["png", "jpeg"], default: "png" },
+                delay: { type: "integer", description: "Wait (ms) after load but before snap.", default: 0 },
+                selector: { type: "string", description: "Snap only this specific element." },
+                js: { type: "string", description: "JS to run before snapping." },
+                css: { type: "string", description: "CSS to inject before snapping." },
+                wait_until: { type: "string", enum: ["load", "domcontentloaded", "networkidle", "commit"], default: "networkidle" },
             },
         },
     },
@@ -303,7 +328,7 @@ const TOOLS = [
     // --- Media & Transcription ---
     {
         name: "media_metadata",
-        description: "Extract metadata from a media file",
+        description: "Extract technical info (codecs, FPS, resolution) from a remote URL. Extremely fast.",
         inputSchema: {
             type: "object",
             properties: { media_url: { type: "string", format: "uri" } },
@@ -312,31 +337,32 @@ const TOOLS = [
     },
     {
         name: "media_transcribe",
-        description: "Transcribe media (video or audio) using advanced options",
+        description: "State-of-the-art speech-to-text. Task 'translate' converts non-English audio TO English text.",
         inputSchema: {
             type: "object",
             properties: {
                 media_url: { type: "string", format: "uri" },
                 task: { type: "string", enum: ["transcribe", "translate"], default: "transcribe" },
-                include_text: { type: "boolean", default: true },
-                include_srt: { type: "boolean", default: false },
-                include_segments: { type: "boolean", default: false },
+                include_text: { type: "boolean", default: true, description: "Return plain text." },
+                include_srt: { type: "boolean", default: false, description: "Return SRT content." },
+                include_segments: { type: "boolean", default: false, description: "Return detailed timestamps." },
                 response_type: { type: "string", enum: ["direct", "cloud"], default: "direct" },
-                language: { type: "string" },
+                language: { type: "string", description: "Source ISO code (e.g. 'ru', 'fr')." },
+                max_words_per_line: { type: "integer", description: "Split segments at N words." },
             },
             required: ["media_url"],
         },
     },
     {
         name: "media_generate_ass",
-        description: "Generate ASS subtitle files with advanced styling",
+        description: "Generate highly styled Advanced Substation Alpha subtitles.",
         inputSchema: {
             type: "object",
             properties: {
                 media_url: { type: "string", format: "uri" },
-                canvas_width: { type: "integer" },
-                canvas_height: { type: "integer" },
-                settings: { type: "object" },
+                canvas_width: { type: "integer", default: 1920 },
+                canvas_height: { type: "integer", default: 1080 },
+                settings: { type: "object", description: "Gradients, animations, font overrides." },
                 language: { type: "string" },
             },
             required: ["media_url"],
@@ -344,40 +370,40 @@ const TOOLS = [
     },
     {
         name: "media_convert",
-        description: "Convert media to a different format with encoding control",
+        description: "Universal format transcode. Supports any extension (e.g. mp4 -> mov, wav -> mp3).",
         inputSchema: {
             type: "object",
             properties: {
                 media_url: { type: "string", format: "uri" },
-                format: { type: "string", description: "Target extension (e.g., 'mp4', 'mkv')" },
-                video_codec: { type: "string" },
-                audio_codec: { type: "string" },
+                format: { type: "string", description: "Target extension (e.g. 'mp4')." },
+                video_codec: { type: "string", default: "libx264" },
+                audio_codec: { type: "string", default: "aac" },
             },
             required: ["media_url", "format"],
         },
     },
     {
         name: "media_download",
-        description: "Download media from various sources using yt-dlp (BETA)",
+        description: "Automated scraping of video/audio from almost any social platform via yt-dlp.",
         inputSchema: {
             type: "object",
             properties: {
-                media_url: { type: "string", format: "uri" },
-                cloud_upload: { type: "boolean", default: true },
-                subtitles: { type: "object" },
+                media_url: { type: "string", format: "uri", description: "Social media post URL." },
+                cloud_upload: { type: "boolean", default: true, description: "Save to result storage." },
+                subtitles: { type: "object", description: "Download auto-captions if available." },
             },
             required: ["media_url"],
         },
     },
     {
         name: "media_silence",
-        description: "Detect silence intervals in a media file",
+        description: "Find quiet parts of a media file. Useful for cutting pauses.",
         inputSchema: {
             type: "object",
             properties: {
                 media_url: { type: "string", format: "uri" },
-                duration: { type: "number", minimum: 0.1, description: "Minimum silence duration" },
-                noise: { type: "string", default: "-30dB" },
+                duration: { type: "number", minimum: 0.1, default: 0.5, description: "Threshold duration." },
+                noise: { type: "string", default: "-30dB", description: "Silence volume threshold." },
             },
             required: ["media_url", "duration"],
         },
@@ -385,40 +411,40 @@ const TOOLS = [
 
     // --- Cloud Storage ---
     {
-        name: "storage_upload_gcp",
-        description: "Stream a file from a URL to Google Cloud Storage",
+        name: "storage_upload_gcs",
+        description: "Mirror a remote URL directly to a Google Cloud Storage bucket.",
         inputSchema: {
             type: "object",
             properties: {
-                file_url: { type: "string", format: "uri" },
-                filename: { type: "string" },
-                public: { type: "boolean", default: false },
+                file_url: { type: "string", format: "uri", description: "Source URL." },
+                filename: { type: "string", description: "Path/name in bucket." },
+                public: { type: "boolean", default: false, description: "Grant public read access." },
             },
-            required: ["file_url"],
+            required: ["file_url", "filename"],
         },
     },
     {
         name: "storage_upload_s3",
-        description: "Stream a file from a URL to Amazon S3 or compatible storage",
+        description: "Mirror a remote URL directly to an S3-compatible bucket (AWS, Digital Ocean, Beget).",
         inputSchema: {
             type: "object",
             properties: {
-                file_url: { type: "string", format: "uri" },
-                filename: { type: "string" },
-                public: { type: "boolean", default: false },
+                file_url: { type: "string", format: "uri", description: "Source URL." },
+                filename: { type: "string", description: "Path/name in bucket." },
+                public: { type: "boolean", default: false, description: "Grant public read access." },
             },
-            required: ["file_url"],
+            required: ["file_url", "filename"],
         },
     },
     {
         name: "storage_upload_gdrive",
-        description: "Upload a file from a URL to Google Drive",
+        description: "Mirror a remote URL directly to a specific Google Drive folder.",
         inputSchema: {
             type: "object",
             properties: {
-                file_url: { type: "string", format: "uri" },
-                filename: { type: "string" },
-                folder_id: { type: "string" },
+                file_url: { type: "string", format: "uri", description: "Source URL." },
+                filename: { type: "string", description: "Saved filename." },
+                folder_id: { type: "string", description: "Drive Folder UUID." },
             },
             required: ["file_url", "filename", "folder_id"],
         },

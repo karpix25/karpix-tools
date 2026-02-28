@@ -16,6 +16,8 @@ services:
     volumes:
       - storage:/var/www/html/storage/app
       - logs:/var/www/html/storage/logs
+    extra_hosts:
+      - "${APP_DOMAIN:-localhost}:host-gateway"
     restart: unless-stopped
   mcp-server:
     build:

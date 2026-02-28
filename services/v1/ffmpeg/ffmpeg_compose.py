@@ -164,6 +164,9 @@ def process_ffmpeg_compose(data, job_id):
         output_filename = os.path.join(LOCAL_STORAGE_PATH, f"{job_id}_output_{i}.{extension}")
         output_filenames.append(output_filename)
         
+        if "map" in output:
+            command.extend(["-map", output["map"]])
+            
         for option in output["options"]:
             command.append(option["option"])
             if "argument" in option and option["argument"] is not None:
