@@ -41,8 +41,9 @@ def upload_to_s3(file_path, s3_url, access_key, secret_key, bucket_name, region)
     )
 
     try:
-        # Upload the file to the specified S3 bucket
-        client.upload_file(file_path, bucket_name, os.path.basename(file_path), ExtraArgs={'ACL': 'public-read'})
+        # Upload the file to the specified S3 bucket directly to avoid multipart chunks mismatch
+        with open(file_path, 'rb') as f:
+            client.put_object(Bucket=bucket_name, Key=os.path.basename(file_path), Body=f, ACL='public-read')
 
         # URL encode the filename for the URL
         encoded_filename = quote(os.path.basename(file_path))
