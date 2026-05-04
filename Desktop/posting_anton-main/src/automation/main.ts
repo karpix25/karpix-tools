@@ -21,31 +21,40 @@ function parseYoutubeGeneratedText(raw: string): { title: string; description: s
         return { title: '', description: '' };
     }
 
-    const taggedTitle = extractTaggedSection(text, 'YT_TITLE');
-    const taggedDescription = extractTaggedSection(text, 'YT_DESCRIPTION');
-    if (taggedTitle || taggedDescription) {
-        return { title: taggedTitle, description: taggedDescription || taggedTitle };
+    const ytTitle = extractTaggedSection(text, 'YT_TITLE');
+    const ytDescription = extractTaggedSection(text, 'YT_DESCRIPTION');
+
+    if (ytTitle || ytDescription) {
+        return {
+            title: ytTitle || '',
+            description: ytDescription || ''
+        };
     }
 
     if (text.includes('$$$')) {
         const parts = text.split('$$$').map(p => p.trim()).filter(Boolean);
         return {
             title: parts[0] || '',
-            description: parts.slice(1).join('\n\n') || parts[0] || ''
+            description: (parts.slice(1).join('\n\n') || parts[0] || '').trim()
         };
     }
 
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-    if (lines.length > 1) {
-        return { title: lines[0], description: lines.slice(1).join('\n') };
-    }
-
-    return { title: '', description: text };
+    return {
+        title: '',
+        description: text.trim()
+    };
 }
 
 function cleanSocialCaption(raw: string): string {
-    const text = (raw || '').trim();
+    let text = (raw || '').trim();
     if (!text) return '';
+
+    // Remove common AI prefixes/labels that leak into captions
+    text = text
+        .replace(/^(Title|Description|Caption|Заголовок|Описание|Опубликуйте|Текст):\s*/gi, '')
+        .replace(/\n(Title|Description|Caption|Заголовок|Описание|Опубликуйте|Текст):\s*/gi, '\n')
+        .replace(/copy_/gi, '')
+        .trim();
 
     const taggedDescription = extractTaggedSection(text, 'YT_DESCRIPTION');
     if (taggedDescription) {
@@ -54,10 +63,19 @@ function cleanSocialCaption(raw: string): string {
 
     if (text.includes('$$$')) {
         const parts = text.split('$$$').map(p => p.trim()).filter(Boolean);
-        return (parts.slice(1).join('\n\n') || parts[0] || '').trim();
+        text = (parts.slice(1).join('\n\n') || parts[0] || '').trim();
     }
 
-    return text;
+    // Deduplicate consecutive identical paragraphs
+    const paragraphs = text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+    const uniqueParagraphs: string[] = [];
+    for (const p of paragraphs) {
+        if (uniqueParagraphs.length === 0 || p !== uniqueParagraphs[uniqueParagraphs.length - 1]) {
+            uniqueParagraphs.push(p);
+        }
+    }
+
+    return uniqueParagraphs.join('\n\n');
 }
 
 async function main() {

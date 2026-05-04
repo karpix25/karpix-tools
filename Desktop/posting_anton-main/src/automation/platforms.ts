@@ -12,11 +12,10 @@ const YOUTUBE_TITLE_MAX_CHARS = 85;
 const YOUTUBE_DESCRIPTION_MAX_CHARS = 4250;
 
 function normalizeText(value: string, maxChars: number): string {
-    const text = (value || '').replace(/\s+/g, ' ').trim();
-    if (text.length > maxChars) {
-        return text.substring(0, maxChars).trim();
-    }
-    return text;
+    // Preserve newlines, collapse only multiple spaces/tabs
+    const text = (value || '').replace(/[ \t]+/g, ' ').trim();
+    if (text.length <= maxChars) return text;
+    return text.substring(0, maxChars - 3) + '...';
 }
 
 export class UploadPostClient {
@@ -131,6 +130,7 @@ export class UploadPostClient {
         }
 
         // Platform-specific titles/params per Upload Post docs
+        console.log(`[UploadPost] Preparing payload for ${post.platform}. Final Caption Sample: "${resolvedCaption.substring(0, 80).replace(/\n/g, '\\n')}${resolvedCaption.length > 80 ? '...' : ''}"`);
 
         switch (post.platform) {
             case 'instagram':
@@ -144,8 +144,8 @@ export class UploadPostClient {
             case 'youtube':
                 form.append('youtube_title', normalizeText(fallbackTitle, YOUTUBE_TITLE_MAX_CHARS));
                 form.append('youtube_description', normalizeText(resolvedCaption || fallbackTitle, YOUTUBE_DESCRIPTION_MAX_CHARS));
-                // Docs allow global `description` as well.
-                form.append('description', normalizeText(resolvedCaption || fallbackTitle, YOUTUBE_DESCRIPTION_MAX_CHARS));
+                // Note: We avoid sending global 'description' and 'title' alongside 
+                // platform-specific ones to prevent duplication in some API versions.
                 form.append('categoryId', '22');
                 form.append('privacyStatus', 'public');
                 break;

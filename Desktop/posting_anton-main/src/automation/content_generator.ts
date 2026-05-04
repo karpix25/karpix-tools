@@ -35,8 +35,10 @@ export class ContentGenerator {
 
 
         // Decode path to ensure LLM gets human-readable text (e.g., "Юлия" instead of "%D0%AE%D0%BB%D0%B8%D1%8F")
+        // Also remove 'copy_' artifacts to avoid AI mentioning them
         const decodedPath = decodeURIComponent(videoPath);
-        let userPrompt = `Путь к файлу: ${decodedPath}. Платформа: ${platform}.`;
+        const sanitizedPath = decodedPath.replace(/copy_/gi, '');
+        let userPrompt = `Путь к файлу: ${sanitizedPath}. Платформа: ${platform}.`;
 
         if (platform === 'youtube') {
             userPrompt += `\n\nВАЖНО: Верни результат СТРОГО в формате ниже, без лишнего текста:\n`;
